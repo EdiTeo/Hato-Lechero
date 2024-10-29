@@ -12,29 +12,68 @@ const Vacas = () => {
   const [vacas, setVacas] = useState([]);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
-  const [modalVisible, setModalVisible] = useState(false); //Estado=> controlar el modal
+  const [modalVisible, setModalVisible] = useState(false);
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
+  const [isEditing, setIsEditing] = useState(false);
+  const [editVacaId, setEditVacaId] = useState(null);
 
-  //Agregamos a lista a una VACA
+  //Función para agregar o editar una vaca
   const agregarVaca = () => {
     if (nombre && etapaCrecimiento && estadoReproductivo && raza && estado) {
-      const nuevaVaca = { 
-        id: Math.random().toString(), 
-        nombre, 
-        etapaCrecimiento, 
-        estadoReproductivo, 
-        raza, 
-        fechaNacimiento: fechaNacimiento.toLocaleDateString(), 
-        estado 
-      };
-      setVacas([...vacas, nuevaVaca]);
+      if (isEditing) {
+        //Editar vaca existente
+        const updatedVacas = vacas.map((vaca) =>
+          vaca.id === editVacaId
+            ? { ...vaca, nombre, etapaCrecimiento, estadoReproductivo, raza, fechaNacimiento: fechaNacimiento.toLocaleDateString(), estado }
+            : vaca
+        );
+        setVacas(updatedVacas);
+        setAlertMessage('¡Vaca actualizada exitosamente!');
+      } else {
+        // Agregar nueva vaca
+        const nuevaVaca = {
+          id: Math.floor(Math.random() * 100000).toString(),
+          nombre,
+          etapaCrecimiento,
+          estadoReproductivo,
+          raza,
+          fechaNacimiento: fechaNacimiento.toLocaleDateString(),
+          estado
+        };
+        setVacas([...vacas, nuevaVaca]);
+        setAlertMessage('¡Vaca agregada exitosamente!');
+      }
       limpiarFormulario();
-      setModalVisible(true); //Mostrar el modal de confirmación
+      setModalVisible(true);
     } else {
-      alert('Por favor, complete todos los campos');
+      setAlertMessage('Por favor, complete todos los campos');
+      setAlertVisible(true);
     }
   };
 
-  //Limpiamos el formulario y restablecemos el estado de creación
+  //Función para eliminar una vaca
+  const eliminarVaca = (id) => {
+    const filteredVacas = vacas.filter((vaca) => vaca.id !== id);
+    setVacas(filteredVacas);
+    setAlertMessage('¡Vaca eliminada exitosamente!');
+    setModalVisible(true);
+  };
+
+  //Función para iniciar la edición de una vaca
+  const editarVaca = (vaca) => {
+    setNombre(vaca.nombre);
+    setEtapaCrecimiento(vaca.etapaCrecimiento);
+    setEstadoReproductivo(vaca.estadoReproductivo);
+    setRaza(vaca.raza);
+    setFechaNacimiento(new Date(vaca.fechaNacimiento));
+    setEstado(vaca.estado);
+    setIsCreating(true);
+    setIsEditing(true);
+    setEditVacaId(vaca.id);
+  };
+
+  //Limpiar formulario y resetear estado de creación
   const limpiarFormulario = () => {
     setNombre('');
     setEtapaCrecimiento('');
@@ -43,6 +82,8 @@ const Vacas = () => {
     setFechaNacimiento(new Date());
     setEstado('');
     setIsCreating(false);
+    setIsEditing(false);
+    setEditVacaId(null);
   };
 
   return (
@@ -50,7 +91,7 @@ const Vacas = () => {
       <Text style={styles.title}>Registro de Vacas</Text>
 
       {isCreating ? (
-        <Button color="red" title="Cancelar" onPress={limpiarFormulario} />
+        <Button color="#EC221F" title="Cancelar" onPress={limpiarFormulario} />
       ) : (
         <Button color="green" title="Crear Vaca" onPress={() => setIsCreating(true)} />
       )}
@@ -65,11 +106,7 @@ const Vacas = () => {
           />
 
           <Text style={styles.label}>Etapa de Crecimiento:</Text>
-          <Picker
-            selectedValue={etapaCrecimiento}
-            style={styles.picker}
-            onValueChange={(value) => setEtapaCrecimiento(value)}
-          >
+          <Picker selectedValue={etapaCrecimiento} style={styles.picker} onValueChange={(value) => setEtapaCrecimiento(value)}>
             <Picker.Item label="Selecciona la etapa" value="" />
             <Picker.Item label="Ternero" value="ternero" />
             <Picker.Item label="Juvenil" value="juvenil" />
@@ -77,27 +114,18 @@ const Vacas = () => {
           </Picker>
 
           <Text style={styles.label}>Estado Reproductivo:</Text>
-          <Picker
-            selectedValue={estadoReproductivo}
-            style={styles.picker}
-            onValueChange={(value) => setEstadoReproductivo(value)}
-          >
+          <Picker selectedValue={estadoReproductivo} style={styles.picker} onValueChange={(value) => setEstadoReproductivo(value)}>
             <Picker.Item label="Selecciona el estado" value="" />
-            <Picker.Item label="Gestante" value="gestante" />
-            <Picker.Item label="No gestante" value="no_gestante" />
-            <Picker.Item label="En lactancia" value="en_lactancia" />
-            <Picker.Item label="Seco" value="seco" />
+            <Picker.Item label="Gestante" value="Gestante" />
+            <Picker.Item label="No gestante" value="No gestante" />
+            <Picker.Item label="En lactancia" value="En Lactancia" />
+            <Picker.Item label="Seco" value="Seco" />
           </Picker>
-          
-          <TextInput
-            placeholder="Raza"
-            style={styles.input}
-            value={raza}
-            onChangeText={(text) => setRaza(text)}
-          />
+
+          <TextInput placeholder="Raza" style={styles.input} value={raza} onChangeText={(text) => setRaza(text)} />
 
           <Text style={styles.label}>Fecha de Nacimiento:</Text>
-          <Button color='green' title="Seleccionar Fecha" onPress={() => setShowDatePicker(true)} />
+          <Button color="green" title="Seleccionar Fecha" onPress={() => setShowDatePicker(true)} />
           {showDatePicker && (
             <DateTimePicker
               value={fechaNacimiento}
@@ -113,17 +141,13 @@ const Vacas = () => {
           <Text style={styles.dateText}>Fecha seleccionada: {fechaNacimiento.toLocaleDateString()}</Text>
 
           <Text style={styles.label}>Estado:</Text>
-          <Picker
-            selectedValue={estado}
-            style={styles.picker}
-            onValueChange={(value) => setEstado(value)}
-          >
+          <Picker selectedValue={estado} style={styles.picker} onValueChange={(value) => setEstado(value)}>
             <Picker.Item label="Selecciona el estado" value="" />
             <Picker.Item label="Activa" value="activa" />
             <Picker.Item label="Inactiva" value="inactiva" />
           </Picker>
 
-          <Button color="green" title="Agregar Vaca" onPress={agregarVaca} />
+          <Button color="green" title={isEditing ? "Actualizar Vaca" : "Agregar Vaca"} onPress={agregarVaca} />
         </>
       )}
 
@@ -132,32 +156,36 @@ const Vacas = () => {
         data={vacas}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <View style={styles.listItem}>
+          <View style={styles.card}>
+            <Text style={styles.vacaText}>Código: {item.id}</Text>
             <Text style={styles.vacaText}>Nombre: {item.nombre}</Text>
             <Text style={styles.vacaText}>Etapa: {item.etapaCrecimiento}</Text>
             <Text style={styles.vacaText}>Estado Reproductivo: {item.estadoReproductivo}</Text>
             <Text style={styles.vacaText}>Raza: {item.raza}</Text>
             <Text style={styles.vacaText}>Fecha Nacimiento: {item.fechaNacimiento}</Text>
             <Text style={styles.vacaText}>Estado: {item.estado}</Text>
+            <Button title="Editar" color="orange" onPress={() => editarVaca(item)} />
+            <Button title="Eliminar" color="red" onPress={() => eliminarVaca(item.id)} />
           </View>
         )}
       />
 
-      {/*Mostrar el modal de confirmacion*/}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
+      <Modal animationType="slide" transparent={true} visible={modalVisible} onRequestClose={() => setModalVisible(false)}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
-            <Text style={styles.modalText}>¡Vaca agregada exitosamente!</Text>
-            <TouchableOpacity
-              style={styles.modalButton}
-              onPress={() => setModalVisible(false)}
-            >
+            <Text style={styles.modalText}>{alertMessage}</Text>
+            <TouchableOpacity style={styles.modalButton} onPress={() => setModalVisible(false)}>
               <Text style={styles.modalButtonText}>Cerrar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+      <Modal animationType="slide" transparent={true} visible={alertVisible} onRequestClose={() => setModalVisible(false)}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            <Text style={styles.modalText}>{alertMessage}</Text>
+            <TouchableOpacity style={styles.modalButton} onPress={() => setAlertVisible(false)}>
+              <Text style={styles.modalButtonText}>Aceptar</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -166,6 +194,7 @@ const Vacas = () => {
   );
 };
 
+ 
 const styles = StyleSheet.create({
   container: {
     padding: 20,
@@ -176,6 +205,18 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
+   
+  },
+  card: {
+    backgroundColor: '#fff',
+    padding: 15,
+    marginVertical: 10,
+    borderRadius: 8,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    shadowOffset: { width: 1, height: 3 },
   },
   input: {
     borderWidth: 1,
@@ -231,7 +272,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   modalButton: {
-    backgroundColor: '#2196F3',
+    backgroundColor: '#009951',
     padding: 10,
     borderRadius: 5,
   },
