@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, Modal, Button, Platform } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, Image, TouchableOpacity, Modal, Button, Platform,ActivityIndicator } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useNavigation } from '@react-navigation/native';
+import axios from 'axios';
 
 const Finca = () => {
   const navigation = useNavigation(); // Hook para navegación
@@ -14,14 +15,49 @@ const Finca = () => {
   const [selectedDate, setSelectedDate] = useState(new Date()); // Estado para la fecha seleccionada
   const [selectedMonth, setSelectedMonth] = useState(''); // Estado para el mes seleccionado
   const [showDatePicker, setShowDatePicker] = useState(false); // Estado para mostrar el date picker
-
+  const [loading, setLoading] = useState(true);
+  const [conteoEtapas, setConteoEtapas] = useState({
+    ternero: 0,
+    juvenil: 0,
+    adulto: 0,
+    cria: 0,
+  });
   // Datos ficticios para los reportes
   const productionData = {
     fecha: '2024-10-30',
     totalLitros: 250,
     numeroVacas: 20,
   };
+  useEffect(() => {
+    async function getConteoEtapas() {
+      try {
+        const response = await axios.get('http://192.168.1.71:8081/api/vacas/contar-por-etapa');
+        
+        // Procesa los datos recuperados para asignarlos a cada etapa
+        const conteo = {
+          ternero: 0,
+          juvenil: 0,
+          adulto: 0,
+          cria: 0,
+        };
+        
+        response.data.data.forEach(item => {
+          conteo[item.etapa_de_crecimiento] = item.total;
+        });
 
+        setConteoEtapas(conteo);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    getConteoEtapas();
+  }, []);
+
+  if (loading) {
+    return <ActivityIndicator size="large" color="#0000ff" />;
+  }
   // Función para manejar la selección de la fecha
   const onDateChange = (event, selectedDate) => {
     setShowDatePicker(false); // Oculta el date picker
@@ -47,22 +83,22 @@ const Finca = () => {
         <View style={[styles.card, { backgroundColor: '#E74C3C' }]}>
           <Image source={require('../Imagenes/vaca22.png')} style={styles.icon} />
           <Text style={styles.cardTitle}>Vacas</Text>
-          <Text style={styles.cardNumber}>50</Text>
+          <Text style={styles.cardNumber}>{conteoEtapas.adulto}</Text>
         </View>
         <View style={[styles.card, { backgroundColor: '#27AE60' }]}>
           <Image source={require('../Imagenes/vaca (1).png')} style={styles.icon} />
           <Text style={styles.cardTitle}>Novillas</Text>
-          <Text style={styles.cardNumber}>25</Text>
+          <Text style={styles.cardNumber}>{conteoEtapas.juvenil}</Text>
         </View>
         <View style={[styles.card, { backgroundColor: '#8E44AD' }]}>
           <Image source={require('../Imagenes/vaca (2).png')} style={styles.icon} />
           <Text style={styles.cardTitle}>Terneros</Text>
-          <Text style={styles.cardNumber}>15</Text>
+          <Text style={styles.cardNumber}>{conteoEtapas.ternero}</Text>
         </View>
         <View style={[styles.card, { backgroundColor: '#16A085' }]}>
           <Image source={require('../Imagenes/vaca (3).png')} style={styles.icon} />
           <Text style={styles.cardTitle}>Destetados</Text>
-          <Text style={styles.cardNumber}>10</Text>
+          <Text style={styles.cardNumber}>{conteoEtapas.cria}</Text>
         </View>
       </View>
 
