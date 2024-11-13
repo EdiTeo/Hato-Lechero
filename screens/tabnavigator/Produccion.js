@@ -9,4 +9,4 @@ const Produccion = () => {
   )
 }
 
-export default Produccion
+export default Produccion;
