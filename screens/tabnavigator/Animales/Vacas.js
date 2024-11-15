@@ -1,10 +1,30 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, Button, Modal, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
+import axios from 'axios';
+import { useFocusEffect } from '@react-navigation/native'; // Importar useFocusEffect
 
 const Vacas = ({ navigation, route }) => {
   const [vacas, setVacas] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      async function getConteoEtapas() {
+        try {
+          const response = await axios.get('http://192.168.1.71:8081/api/vaca');
+          setVacas(response.data);
+        } catch (error) {
+          console.log(error);
+        } finally {
+          setLoading(false);
+        }
+      }
+
+      getConteoEtapas();
+    }, []) // La función solo se ejecutará cuando la pantalla se enfoque
+  );
 
   useEffect(() => {
     if (route.params?.showModal) {
@@ -16,27 +36,14 @@ const Vacas = ({ navigation, route }) => {
 
   const cerrarModal = () => {
     setModalVisible(false);
-    setVacas([...vacas]);
   };
+
   const agregarVaca = (nuevaVaca) => {
     setVacas([...vacas, nuevaVaca]);
   };
 
-  const onEliminarVaca = (id) => {
-    setVacas(vacas.filter(vaca => vaca.id !== id));
-  };
-
-  const onEditarVaca = (vaca) => {
-    navigation.navigate('FormularioAddVaca', { 
-      vacaEditar: vaca, 
-      onGuardar: (vacaEditada) => {
-        setVacas((prevVacas) =>
-          prevVacas.map((v) => (v.id === vacaEditada.id ? vacaEditada : v))
-        );
-        setAlertMessage('¡Vaca actualizada exitosamente!');
-        setModalVisible(true);
-      } 
-    });
+  const onSeleccionarVaca = (vaca) => {
+    navigation.navigate('DetallesVaca', { vaca });
   };
 
   return (
@@ -53,17 +60,15 @@ const Vacas = ({ navigation, route }) => {
         data={vacas}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <View style={styles.card}>
-            <Text style={styles.vacaText}>Código: {item.id}</Text>
-            <Text style={styles.vacaText}>Nombre: {item.nombre}</Text>
-            <Text style={styles.vacaText}>Etapa: {item.etapaCrecimiento}</Text>
-            <Text style={styles.vacaText}>Estado Reproductivo: {item.estadoReproductivo}</Text>
-            <Text style={styles.vacaText}>Raza: {item.raza}</Text>
-            <Text style={styles.vacaText}>Fecha Nacimiento: {item.fechaNacimiento}</Text>
-            <Text style={styles.vacaText}>Estado: {item.estado}</Text>
-            <Button title="Editar" color="orange" onPress={() => onEditarVaca(item)} />
-            <Button title="Eliminar" color="red" onPress={() => onEliminarVaca(item.id)} />
-          </View>
+          <TouchableOpacity style={styles.card} onPress={() => onSeleccionarVaca(item)}>
+            <View style={styles.iconContainer}>
+              <Text style={styles.iconText}>{item.nombre.charAt(0).toUpperCase()}</Text>
+            </View>
+            <View style={styles.infoContainer}>
+              <Text style={styles.vacaName}>{item.nombre}</Text>
+              <Text style={styles.vacaId}>ID: {item.vaca_id}</Text>
+            </View>
+          </TouchableOpacity>
         )}
       />
 
@@ -85,10 +90,18 @@ const styles = StyleSheet.create({
   container: { padding: 20, backgroundColor: '#fff', flex: 1 },
   title: { fontSize: 24, fontWeight: 'bold', marginBottom: 20 },
   card: {
-    backgroundColor: '#fff', padding: 15, marginVertical: 10, borderRadius: 8, elevation: 3,
+    flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', padding: 15, 
+    marginVertical: 10, borderRadius: 8, elevation: 3,
     shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 4, shadowOffset: { width: 1, height: 3 },
   },
-  vacaText: { fontSize: 16 },
+  iconContainer: {
+    width: 40, height: 40, borderRadius: 20, backgroundColor: '#8E44AD', 
+    justifyContent: 'center', alignItems: 'center', marginRight: 15,
+  },
+  iconText: { color: '#fff', fontSize: 20, fontWeight: 'bold' },
+  infoContainer: { flex: 1 },
+  vacaName: { fontSize: 18, fontWeight: 'bold' },
+  vacaId: { fontSize: 14, color: 'gray' },
   modalOverlay: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' },
   modalContainer: { width: 300, padding: 20, backgroundColor: '#fff', borderRadius: 10, alignItems: 'center' },
   modalText: { fontSize: 18, marginBottom: 15, textAlign: 'center' },

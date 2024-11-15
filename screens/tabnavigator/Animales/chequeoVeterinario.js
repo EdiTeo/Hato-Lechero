@@ -2,7 +2,7 @@ import { View, Text, TouchableOpacity, StyleSheet,Image } from 'react-native'
 import React from 'react'
 import { useNavigation } from '@react-navigation/native';
 
-const Produccion = () => {
+const chequeoVeterinario = ({ route}) => {
   const navigation = useNavigation();
 
   return (
@@ -10,10 +10,11 @@ const Produccion = () => {
       <View style={styles.cardContainer}>
         <TouchableOpacity
           style={styles.card}
-          onPress={() => navigation.navigate('datosGenerales')}
+          onPress={() => navigation.navigate('tratamiento',route.params)}
         >
-          <Image source={require('../Imagenes/datosGenerales.png')} style={styles.icon} />
-          <Text style={styles.cardText}>Datos generales</Text>
+          
+          <Image source={require('../../Imagenes/tratamiento.jpg')} style={styles.icon} />
+          <Text style={styles.cardText}>Tratamiento</Text>
         </TouchableOpacity>
 
         
@@ -22,29 +23,22 @@ const Produccion = () => {
       <View style={styles.cardContainer}>
         <TouchableOpacity
           style={styles.card}
-          onPress={() => navigation.navigate('DatosVeterinarios')}
+          onPress={() => navigation.navigate('vacuna',route.params)}
           
         >
-          <Image source={require('../Imagenes/tratamiento.jpg')} style={styles.icon} />
-          <Text style={styles.cardText}>Datos veterinarios</Text>
+          <Image source={require('../../Imagenes/vacuna.jpg')} style={styles.icon} />
+          <Text style={styles.cardText}>Vacuna</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={styles.card}
-         
+          onPress={() => navigation.navigate('vacaFallecimiento')}
         >
-          <Image source={require('../Imagenes/vaca22.png')} style={styles.icon} />
-          <Text style={styles.cardText}>Reproducción</Text>
+          <Image source={require('../../Imagenes/vacafallecida.jpg')} style={styles.icon} />
+          <Text style={styles.cardText}>Vaca Fallecida</Text>
 
         </TouchableOpacity>
       </View>
-
-      <TouchableOpacity
-        style={styles.sellButton}
-        
-      >
-        <Text style={styles.sellButtonText}>Poner en venta</Text>
-      </TouchableOpacity>
     </View>
   );
 }
@@ -90,4 +84,4 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
 });
-export default Produccion
+export default chequeoVeterinario;
