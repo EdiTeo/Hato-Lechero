@@ -1,8 +1,11 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import { useNavigation } from '@react-navigation/native';
 
-const Menu = () => {
+const Registro = () => {
+  const navigation = useNavigation();
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -13,7 +16,6 @@ const Menu = () => {
       </View>
 
       <TouchableOpacity style={styles.menuItem}>
-      onPress={() => navigation.navigate('Finca')} // Navega a la pantalla Finca
         <Icon name="home" size={24} color="black" />
         <Text style={styles.menuText}>LA FINCA</Text>
       </TouchableOpacity>
@@ -23,7 +25,7 @@ const Menu = () => {
         <Text style={styles.menuText}>EVENTOS Y TAREAS</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.menuItem}>
+      <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('Perfil')}>
         <Icon name="user" size={24} color="black" />
         <Text style={styles.menuText}>PERFIL</Text>
       </TouchableOpacity>
@@ -70,5 +72,4 @@ const styles = StyleSheet.create({
     color: 'black',
   },
 });
-
-export default Menu;
+export default Registro
