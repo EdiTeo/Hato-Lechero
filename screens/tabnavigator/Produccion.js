@@ -5,21 +5,39 @@ const Produccion = () => {
   const [mostrarOpciones, setMostrarOpciones] = useState(false);
   const [mostrarDetalleProduccion, setMostrarDetalleProduccion] = useState(false);
   const [mostrarRegistroMasivo, setMostrarRegistroMasivo] = useState(false);
+  const [turnoSeleccionado, setTurnoSeleccionado] = useState("");  // Almacenamos el turno seleccionado
+  const [animalesOrdeñados, setAnimalesOrdeñados] = useState("");
+  const [lecheExtraida, setLecheExtraida] = useState("");
+  const [registro, setRegistro] = useState([]);
 
   const handleProduccionLeche = () => {
     setMostrarDetalleProduccion(true);
-    setMostrarOpciones(false); // Oculta las opciones al abrir el detalle
+    setMostrarOpciones(false);
   };
 
   const handleRegistroMasivo = () => {
     setMostrarRegistroMasivo(true);
-    setMostrarOpciones(false); // Oculta las opciones al abrir el formulario de registro masivo
+    setMostrarOpciones(false);
   };
 
   const handleVolver = () => {
     setMostrarDetalleProduccion(false);
     setMostrarOpciones(false);
     setMostrarRegistroMasivo(false);
+  };
+
+  const handleAñadir = () => {
+    if (turnoSeleccionado && animalesOrdeñados && lecheExtraida) {
+      // Añadir el registro a la lista con el turno seleccionado
+      setRegistro([
+        ...registro,
+        { turno: turnoSeleccionado, animales: animalesOrdeñados, leche: lecheExtraida },
+      ]);
+      // Limpiar los campos después de añadir
+      setAnimalesOrdeñados("");
+      setLecheExtraida("");
+      setTurnoSeleccionado("");
+    }
   };
 
   return (
@@ -30,28 +48,66 @@ const Produccion = () => {
           <Text style={styles.header}>Datos del Registro</Text>
           <Text>1/04/2027 9:30AM</Text>
 
-          <Text style={styles.subheader}>Producción de la vaca</Text>
-          <Text style={styles.label}>Animal*</Text>
-          <TextInput style={styles.input} placeholder="Seleccione un animal" />
+          <Text style={styles.subheader}>Producción de la Vaca</Text>
 
-          <Text style={styles.label}>Litros de leche*</Text>
-          <TextInput style={styles.input} placeholder="Ingrese los litros" keyboardType="numeric" />
+          <Text style={styles.label}>Turno*</Text>
+          <View style={styles.radioGroup}>
+            <TouchableOpacity
+              onPress={() => setTurnoSeleccionado("Mañana")}
+              style={[styles.radioOption, turnoSeleccionado === "Mañana" && styles.radioSelectedContainer]}
+            >
+              <Text style={turnoSeleccionado === "Mañana" ? styles.radioSelected : styles.radioUnselected}>○</Text>
+              <Text>Mañana</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => setTurnoSeleccionado("Tarde")}
+              style={[styles.radioOption, turnoSeleccionado === "Tarde" && styles.radioSelectedContainer]}
+            >
+              <Text style={turnoSeleccionado === "Tarde" ? styles.radioSelected : styles.radioUnselected}>○</Text>
+              <Text>Tarde</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => setTurnoSeleccionado("Ambos")}
+              style={[styles.radioOption, turnoSeleccionado === "Ambos" && styles.radioSelectedContainer]}
+            >
+              <Text style={turnoSeleccionado === "Ambos" ? styles.radioSelected : styles.radioUnselected}>○</Text>
+              <Text>Ambos</Text>
+            </TouchableOpacity>
+          </View>
 
-          <Button title="Añadir" onPress={() => {}} color="#18C3D1" />
+          <Text style={styles.label}>Total de Animales Ordeñados*</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Ingrese la cantidad de animales"
+            keyboardType="numeric"
+            value={animalesOrdeñados}
+            onChangeText={setAnimalesOrdeñados}
+          />
+
+          <Text style={styles.label}>Total de Leche Extraída*</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Ingrese la cantidad de litros"
+            keyboardType="numeric"
+            value={lecheExtraida}
+            onChangeText={setLecheExtraida}
+          />
+
+          <Button title="Añadir" onPress={handleAñadir} color="#18C3D1" />
 
           <View style={styles.tableContainer}>
             <View style={styles.tableRow}>
-              <Text style={styles.tableHeader}>Vaca</Text>
-              <Text style={styles.tableHeader}>Mañana</Text>
-              <Text style={styles.tableHeader}>Tarde</Text>
-              <Text style={styles.tableHeader}>Total Leche</Text>
+              <Text style={styles.tableHeader}>Turno</Text>
+              <Text style={styles.tableHeader}>Animales</Text>
+              <Text style={styles.tableHeader}>Leche (L)</Text>
             </View>
-            <View style={styles.tableRow}>
-              <Text style={styles.tableCell}>02</Text>
-              <Text style={styles.tableCell}>15</Text>
-              <Text style={styles.tableCell}>15</Text>
-              <Text style={styles.tableCell}>30</Text>
-            </View>
+            {registro.map((item, index) => (
+              <View key={index} style={styles.tableRow}>
+                <Text style={styles.tableCell}>{item.turno}</Text>
+                <Text style={styles.tableCell}>{item.animales}</Text>
+                <Text style={styles.tableCell}>{item.leche}</Text>
+              </View>
+            ))}
           </View>
 
           <Button title="Guardar" onPress={handleVolver} color="#18C3D1" />
@@ -60,14 +116,26 @@ const Produccion = () => {
         // Vista de detalle de producción de leche
         <View style={styles.detalleProduccion}>
           <Text style={styles.header}>Producción Hoy</Text>
-          <Text style={styles.item}>Total <Text style={styles.value}>200 Litros</Text></Text>
-          <Text style={styles.item}>En ordeño <Text style={styles.value}>10 animales</Text></Text>
-          <Text style={styles.item}>Promedio Diario <Text style={styles.value}>100 Litros</Text></Text>
+          <Text style={styles.item}>
+            Total <Text style={styles.value}>200 Litros</Text>
+          </Text>
+          <Text style={styles.item}>
+            En ordeño <Text style={styles.value}>10 animales</Text>
+          </Text>
+          <Text style={styles.item}>
+            Promedio Diario <Text style={styles.value}>100 Litros</Text>
+          </Text>
 
           <Text style={styles.header}>Producción de la finca</Text>
-          <Text style={styles.item}>Total hoy <Text style={styles.value}>200 Litros</Text></Text>
-          <Text style={styles.item}>Total ayer <Text style={styles.value}>90 Litros</Text></Text>
-          <Text style={styles.item}>2da Quincena Mayo <Text style={styles.value}>100 Litros</Text></Text>
+          <Text style={styles.item}>
+            Total hoy <Text style={styles.value}>200 Litros</Text>
+          </Text>
+          <Text style={styles.item}>
+            Total ayer <Text style={styles.value}>90 Litros</Text>
+          </Text>
+          <Text style={styles.item}>
+            2da Quincena Mayo <Text style={styles.value}>100 Litros</Text>
+          </Text>
 
           <Button title="Volver atrás" onPress={handleVolver} color="#18C3D1" />
         </View>
@@ -76,17 +144,11 @@ const Produccion = () => {
         <>
           <View style={styles.opcionesContainer}>
             <TouchableOpacity style={styles.opcion} onPress={handleProduccionLeche}>
-              <Image 
-                source={require('../Imagenes/ordeno.png')}
-                style={styles.imagen}
-              />
+              <Image source={require('../Imagenes/botella-de-leche.png')} style={styles.imagen} />
               <Text style={styles.opcionText}>Producción de leche</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.opcion} onPress={handleRegistroMasivo}>
-              <Image 
-                source={require('../Imagenes/vaca.png')}
-                style={styles.imagen}
-              />
+              <Image source={require('../Imagenes/botellas-de-leche.png')} style={styles.imagen} />
               <Text style={styles.opcionText}>Registro masivo</Text>
             </TouchableOpacity>
           </View>
@@ -209,17 +271,19 @@ const styles = StyleSheet.create({
   subheader: {
     fontSize: 16,
     fontWeight: 'bold',
-    marginTop: 20,
+    marginTop: 10,
   },
   label: {
+    marginTop: 10,
     fontSize: 14,
-    marginVertical: 5,
+    fontWeight: 'bold',
   },
   input: {
-    backgroundColor: '#F0F0F0',
-    padding: 10,
+    borderWidth: 1,
+    borderColor: '#CCCCCC',
     borderRadius: 5,
-    marginBottom: 10,
+    padding: 10,
+    marginTop: 5,
   },
   tableContainer: {
     marginTop: 20,
@@ -227,15 +291,37 @@ const styles = StyleSheet.create({
   tableRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#CCCCCC',
   },
   tableHeader: {
     fontWeight: 'bold',
-    width: '25%',
+    flex: 1,
     textAlign: 'center',
   },
   tableCell: {
-    width: '25%',
+    flex: 1,
     textAlign: 'center',
+  },
+  radioGroup: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginVertical: 10,
+  },
+  radioOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  radioUnselected: {
+    color: '#000',
+    fontSize: 18,
+    marginRight: 5,
+  },
+  radioSelected: {
+    color: '#18C3D1',
+    fontSize: 18,
+    marginRight: 5,
   },
 });
 
