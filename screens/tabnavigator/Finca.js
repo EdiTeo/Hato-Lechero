@@ -68,9 +68,11 @@ const Finca = () => {
 
   return (
     <View style={styles.container}>
-      {/* Encabezado */}
       <View style={styles.header}>
-        <Text style={styles.headerText}>GRANJA ASTEGRIDAD</Text>
+        <Image 
+          source={require('../Imagenes/Vaca Leche 3.jpg')}
+          style={styles.logo}
+        />
       </View>
 
       {/* Total ganado */}
@@ -112,7 +114,7 @@ const Finca = () => {
         </View>
         <View style={[styles.card, { backgroundColor: '#27AE60' }]}>
           <Image source={require('../Imagenes/embarazada.png')} style={styles.icon} />
-          <Text style={styles.cardTitle}>Embarazadas</Text>
+          <Text style={styles.cardTitle}>Preñada</Text>
           <Text style={styles.cardNumber}>10</Text>
         </View>
         <View style={[styles.card, { backgroundColor: '#F1C40F' }]}>
@@ -322,32 +324,38 @@ const Finca = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    backgroundColor: '#FDFEFE',
+    backgroundColor: '#FFFFFF', // Gris claro
+    paddingVertical: 0,
+    paddingHorizontal: 10,
   },
   header: {
-    marginBottom: 20,
     alignItems: 'center',
+    marginBottom: 10,
+  },
+  logo: {
+    width: 600,
+    height: 200,
+    resizeMode: 'contain',
   },
   headerText: {
     fontSize: 25,
     fontWeight: 'bold',
     textAlign: 'left',
-    marginBottom: 20,
+    marginBottom: 10,
     color: '#2C3E50',
   },
   subHeaderText: {
     fontSize: 25,
     fontWeight: 'bold',
     textAlign: 'center',
-    marginBottom: 10,
+    marginBottom: 0,
     marginVertical: 20,
     color: '#7F8C8D',
   },
   section: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 20,
+    marginBottom: 5,
   },
   card: {
     flex: 1,
@@ -359,7 +367,7 @@ const styles = StyleSheet.create({
   icon: {
     width: 50,
     height: 50,
-    marginBottom: 10,
+    marginBottom: 5,
   },
   cardTitle: {
     fontSize: 10,
