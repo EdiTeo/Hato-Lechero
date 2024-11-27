@@ -13,7 +13,7 @@ import axios from 'axios';
 
 const inforVaca = ({ route }) => {
   const navigation = useNavigation();
-  const { vacaId } = route.params.vaca.vaca_id; // Supongo que el ID de la vaca viene en los parámetros de la ruta
+  //const { vacaId } = route.params.vaca.vaca_id; // Supongo que el ID de la vaca viene en los parámetros de la ruta
   const [modalVisible, setModalVisible] = useState(false);
   const handleDelete = async () => {
     try {

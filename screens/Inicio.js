@@ -15,6 +15,8 @@ import formularioVacuna from './tabnavigator/Animales/formularioVacuna';
 import infoVaca from './tabnavigator/Animales/infoVaca';
 import datosGenerales from './tabnavigator/Animales/datosGenerales';
 import EstadoReproductivo from './tabnavigator/Animales/estadoReproductivo';
+import embarazo from './tabnavigator/Animales/embarazo';
+
  
 //=====================================================
 //AÑADIR A ESTA SECCION LAS VENTANAS O REDIRECCIONAMIENTOS QUE SE QUIERE MOSTRAR AL HACER CLIC 
@@ -72,6 +74,9 @@ const Inicio = () => {
         <Stack.Screen 
         name="estadoReproductivo" 
         component={EstadoReproductivo} />
+        <Stack.Screen 
+        name="embarazo" 
+        component={embarazo} />
       </Stack.Navigator>
       
       

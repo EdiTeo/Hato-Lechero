@@ -48,7 +48,9 @@ const EstadoReproductivo = ({ route, navigation }) => {
             })}
             {mostrarBotonAdd && (
                 <TouchableOpacity style={styles.botonAdd}>
-                    <Text style={styles.botonAddText}>+</Text>
+                    <Text style={styles.botonAddText}
+                    onPress={() => navigation.navigate('embarazo',route.params)}
+                    >+</Text>
                 </TouchableOpacity>
             )}
         </View>

@@ -22,6 +22,12 @@ const Finca = () => {
     adulto: 0,
     cria: 0,
   });
+  const [conteoEstado, setConteoEstado] = useState({
+    enfermos: 0,
+    preñadas: 0,
+    gestante: 0,
+    seco: 0,
+  });
   // Datos ficticios para los reportes
   const productionData = {
     fecha: '2024-10-30',
@@ -31,8 +37,10 @@ const Finca = () => {
   useEffect(() => {
     async function getConteoEtapas() {
       try {
-        const response = await axios.get('http://192.168.1.71:8081/api/vacas/contar-por-etapa');
-        
+        const response = await axios.get('http://192.168.1.71:8081/api/vacas/contar-por-etapa-y-estado');
+        console.log(response);
+        const response2 = await axios.get('http://192.168.1.71:8081/api/historial-medico/vacas-en-tratamiento-hoy');
+        const response3 = await axios.get('http://192.168.1.71:8081/api/vacas-preñadas');
         // Procesa los datos recuperados para asignarlos a cada etapa
         const conteo = {
           ternero: 0,
@@ -40,12 +48,24 @@ const Finca = () => {
           adulto: 0,
           cria: 0,
         };
+        const conteoEstados={
+          enfermos: 0,
+          preñadas: 0,
+          gestante: 0,
+          seco: 0,
+        };
         
-        response.data.data.forEach(item => {
+        response.data.etapas.forEach(item => {
           conteo[item.etapa_de_crecimiento] = item.total;
         });
-
+        conteoEstados.enfermos = response2.data.vacas_en_tratamiento;
+        conteoEstados.preñadas = response3.data.vacas_preñadas;
         setConteoEtapas(conteo);
+        response.data.estados_reproductivos.forEach(item => {
+          conteoEstados[item.estado_reproductivo] = item.total;
+        });
+        setConteoEstado(conteoEstados);
+        console.log(conteoEstados);
       } catch (error) {
         console.log(error);
       } finally {
@@ -110,22 +130,22 @@ const Finca = () => {
         <View style={[styles.card, { backgroundColor: '#E74C3C' }]}>
           <Image source={require('../Imagenes/botiquin-de-primeros-auxilios.png')} style={styles.icon} />
           <Text style={styles.cardTitle}>Enfermos</Text>
-          <Text style={styles.cardNumber}>20</Text>
+          <Text style={styles.cardNumber}>{conteoEstado.enfermos}</Text>
         </View>
         <View style={[styles.card, { backgroundColor: '#27AE60' }]}>
           <Image source={require('../Imagenes/embarazada.png')} style={styles.icon} />
           <Text style={styles.cardTitle}>Preñada</Text>
-          <Text style={styles.cardNumber}>10</Text>
+          <Text style={styles.cardNumber}>{conteoEstado.preñadas}</Text>
         </View>
         <View style={[styles.card, { backgroundColor: '#F1C40F' }]}>
           <Image source={require('../Imagenes/ordeno.png')} style={styles.icon} />
           <Text style={styles.cardTitle}>Ordeño</Text>
-          <Text style={styles.cardNumber}>10</Text>
+          <Text style={styles.cardNumber}>{conteoEstado.gestante}</Text>
         </View>
         <View style={[styles.card, { backgroundColor: '#16A085' }]}>
           <Image source={require('../Imagenes/ordeno (1).png')} style={styles.icon} />
           <Text style={styles.cardTitle}>Seco</Text>
-          <Text style={styles.cardNumber}>10</Text>
+          <Text style={styles.cardNumber}>{conteoEstado.seco}</Text>
         </View>
       </View>
 
