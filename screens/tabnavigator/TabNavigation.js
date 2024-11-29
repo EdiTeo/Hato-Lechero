@@ -51,6 +51,7 @@ const TabNavigation = () => {
               style={{ width: 30, height: 30, tintColor: focused ? 'red' : 'black' }}
             />
           ),
+          
         }}
       />
 

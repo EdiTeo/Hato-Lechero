@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback , useState } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, Modal, Button, Platform,ActivityIndicator } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
+import { useFocusEffect } from '@react-navigation/native';
 
 const Finca = () => {
   const navigation = useNavigation(); // Hook para navegación
@@ -34,47 +35,53 @@ const Finca = () => {
     totalLitros: 250,
     numeroVacas: 20,
   };
-  useEffect(() => {
-    async function getConteoEtapas() {
-      try {
-        const response = await axios.get('http://192.168.1.71:8081/api/vacas/contar-por-etapa-y-estado');
-        console.log(response);
-        const response2 = await axios.get('http://192.168.1.71:8081/api/historial-medico/vacas-en-tratamiento-hoy');
-        const response3 = await axios.get('http://192.168.1.71:8081/api/vacas-preñadas');
-        // Procesa los datos recuperados para asignarlos a cada etapa
-        const conteo = {
-          ternero: 0,
-          juvenil: 0,
-          adulto: 0,
-          cria: 0,
-        };
-        const conteoEstados={
-          enfermos: 0,
-          preñadas: 0,
-          gestante: 0,
-          seco: 0,
-        };
-        
-        response.data.etapas.forEach(item => {
-          conteo[item.etapa_de_crecimiento] = item.total;
-        });
-        conteoEstados.enfermos = response2.data.vacas_en_tratamiento;
-        conteoEstados.preñadas = response3.data.vacas_preñadas;
-        setConteoEtapas(conteo);
-        response.data.estados_reproductivos.forEach(item => {
-          conteoEstados[item.estado_reproductivo] = item.total;
-        });
-        setConteoEstado(conteoEstados);
-        console.log(conteoEstados);
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setLoading(false);
-      }
-    }
-    getConteoEtapas();
-  }, []);
+  const getConteoEtapas = async () => {
+    try {
+      setLoading(true); // Activa el estado de carga
+      const response = await axios.get('http://192.168.1.71:8081/api/vacas/contar-por-etapa-y-estado');
+      const response2 = await axios.get('http://192.168.1.71:8081/api/historial-medico/vacas-en-tratamiento-hoy');
+      const response3 = await axios.get('http://192.168.1.71:8081/api/vacas-preñadas');
 
+      const conteo = {
+        ternero: 0,
+        juvenil: 0,
+        adulto: 0,
+        cria: 0,
+      };
+      const conteoEstados = {
+        enfermos: 0,
+        preñadas: 0,
+        gestante: 0,
+        seco: 0,
+      };
+
+      response.data.etapas.forEach(item => {
+        conteo[item.etapa_de_crecimiento] = item.total;
+      });
+      conteoEstados.enfermos = response2.data.vacas_en_tratamiento;
+      conteoEstados.preñadas = response3.data.vacas_preñadas;
+
+      setConteoEtapas(conteo);
+
+      response.data.estados_reproductivos.forEach(item => {
+        conteoEstados[item.estado_reproductivo] = item.total;
+      });
+
+      setConteoEstado(conteoEstados);
+      console.log(conteoEstados);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false); // Desactiva el estado de carga
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      getConteoEtapas(); // Llama a la función de consultas al enfocar la pantalla
+    }, [])
+  );
+  
   if (loading) {
     return <ActivityIndicator size="large" color="#0000ff" />;
   }
