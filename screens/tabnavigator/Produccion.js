@@ -1,6 +1,7 @@
 import React, { useState,useCallback  } from 'react';
 import { View, Text, StyleSheet, Button, TouchableOpacity, Image, TextInput } from 'react-native';
 import axios from 'axios';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { useFocusEffect } from '@react-navigation/native';
 
 const Produccion = () => {
@@ -9,10 +10,12 @@ const Produccion = () => {
   const [mostrarRegistroMasivo, setMostrarRegistroMasivo] = useState(false);
   const [turnoSeleccionado, setTurnoSeleccionado] = useState("");  // Almacenamos el turno seleccionado
   const [animalesOrdeñados, setAnimalesOrdeñados] = useState("");
+  const [fechaNacimiento, setFechaNacimiento] = useState(new Date());
   const [lecheExtraida, setLecheExtraida] = useState("");
   const [registro, setRegistro] = useState([]);
   const [produccionHoy, setProduccionHoy] = useState([]);
   const [produccionMes, setProduccionMes] = useState([]);
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
   const handleProduccionLeche = () => {
     setMostrarDetalleProduccion(true);
@@ -35,6 +38,7 @@ const Produccion = () => {
   };
 
   const handleAñadir = async() => {
+    console.log(fechaNacimiento.toISOString().split('T')[0]);
     if (turnoSeleccionado && animalesOrdeñados && lecheExtraida) {
       // Añadir el registro a la lista con el turno seleccionado
       setRegistro([
@@ -48,7 +52,7 @@ const Produccion = () => {
           cantidad_animales: parseInt(animalesOrdeñados, 10), // Convierte a entero
           cantidad_litros: parseFloat(lecheExtraida), // Convierte a flotante
           tipo_ordeño: turnoSeleccionado, // Si es un string válido, déjalo tal cual
-          fecha_produccion: '2024-11-27', // Debe estar en formato 'YYYY-MM-DD'
+          fecha_produccion: fechaNacimiento.toISOString().split('T')[0], // Debe estar en formato 'YYYY-MM-DD'
         });
         
       } catch (error) {
@@ -90,7 +94,21 @@ const Produccion = () => {
         // Formulario de Registro Masivo
         <View style={styles.registroMasivoContainer}>
           <Text style={styles.header}>Datos del Registro</Text>
-          <Text>1/04/2027 9:30AM</Text>
+          <Text style={styles.label}>Fecha</Text>
+      <Button color="green" title="Seleccionar Fecha" onPress={() => setShowDatePicker(true)} />
+      {showDatePicker && (
+        <DateTimePicker
+          value={fechaNacimiento}
+          mode="date"
+          display="default"
+          onChange={(event, selectedDate) => {
+            const currentDate = selectedDate || fechaNacimiento;
+            setShowDatePicker(false);
+            setFechaNacimiento(currentDate);
+          }}
+        />
+      )}
+      <Text style={styles.dateText}>Fecha seleccionada: {fechaNacimiento.toLocaleDateString()}</Text>
 
           <Text style={styles.subheader}>Producción de la Vaca</Text>
 
@@ -187,10 +205,7 @@ const Produccion = () => {
         // Vista con las opciones "Producción de leche" y "Registro masivo"
         <>
           <View style={styles.opcionesContainer}>
-            <TouchableOpacity style={styles.opcion} onPress={handleProduccionLeche}>
-              <Image source={require('../Imagenes/botella-de-leche.png')} style={styles.imagen} />
-              <Text style={styles.opcionText}>Producción de leche</Text>
-            </TouchableOpacity>
+            
             <TouchableOpacity style={styles.opcion} onPress={handleRegistroMasivo}>
               <Image source={require('../Imagenes/botellas-de-leche.png')} style={styles.imagen} />
               <Text style={styles.opcionText}>Registro masivo</Text>

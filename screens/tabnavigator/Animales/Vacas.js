@@ -20,6 +20,7 @@ const Vacas = ({ navigation, route }) => {
           if (response.data && Array.isArray(response.data) && response.data.length > 0) {
             console.log(response.data); // Verifica la respuesta de la API
             setVacas(response.data);
+            
           } else {
             console.log('No hay vacas registradas.');
             setVacas([]); // Establecer vacas como un arreglo vacío

@@ -1,11 +1,10 @@
 {
   "expo": {
     "name": "hatofrontend",
-    "slug": "hatofrontend",
+    "slug": "hatolechero",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "sdkVersion": "52.0.0",
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash.png",
@@ -19,10 +18,22 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "permissions": [
+        "NOTIFICATIONS"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      "expo-notifications"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "6c4d94a0-3921-4469-963b-5470a2519096"
+      }
+    },
+    "owner": "darco22"
   }
 }

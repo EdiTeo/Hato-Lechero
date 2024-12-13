@@ -9,6 +9,15 @@ import { useFocusEffect } from '@react-navigation/native';
 const Finca = () => {
   const navigation = useNavigation(); // Hook para navegación
   const [modalVisible, setModalVisible] = useState(false); // Controla el modal de reportes
+  const [modalVisible1, setModalVisible1] = useState(false);
+  const [modalVisible2, setModalVisible2] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState([]);
+  const [tratamiento, setTratamiento] = useState([]);
+  const [preñada, setPreñada] = useState([]);
+  const [gestante, setGestante] = useState([]);
+  const [nogestante, setnoGestante] = useState([]);
+  const [datos, setDatos] = useState([]);
+  const [datos2, setDatos2] = useState([]);
   const [subModalVisible, setSubModalVisible] = useState(false); // Controla el sub-modal
   const [reportModalVisible, setReportModalVisible] = useState(false); // Controla el modal de reportes generados
   const [selectedParam, setSelectedParam] = useState(''); // Estado para el parámetro seleccionado
@@ -17,6 +26,7 @@ const Finca = () => {
   const [selectedMonth, setSelectedMonth] = useState(''); // Estado para el mes seleccionado
   const [showDatePicker, setShowDatePicker] = useState(false); // Estado para mostrar el date picker
   const [loading, setLoading] = useState(true);
+ 
   const [conteoEtapas, setConteoEtapas] = useState({
     ternero: 0,
     juvenil: 0,
@@ -27,21 +37,25 @@ const Finca = () => {
     enfermos: 0,
     preñadas: 0,
     gestante: 0,
-    seco: 0,
+    no_gestante: 0,
   });
   // Datos ficticios para los reportes
-  const productionData = {
+  const [produccionLeche, setProduccionLeche] = useState({
     fecha: '2024-10-30',
     totalLitros: 250,
     numeroVacas: 20,
-  };
+  });
+  const [total, setTotal] = useState(0);
   const getConteoEtapas = async () => {
     try {
       setLoading(true); // Activa el estado de carga
       const response = await axios.get('http://192.168.1.71:8081/api/vacas/contar-por-etapa-y-estado');
       const response2 = await axios.get('http://192.168.1.71:8081/api/historial-medico/vacas-en-tratamiento-hoy');
       const response3 = await axios.get('http://192.168.1.71:8081/api/vacas-preñadas');
-
+      const response4 = await axios.get('http://192.168.1.71:8081/api/vaca');
+      setSelectedCategory(response4.data);
+      
+      setTratamiento(response2.data.nombres_vacas_en_tratamiento);
       const conteo = {
         ternero: 0,
         juvenil: 0,
@@ -52,9 +66,8 @@ const Finca = () => {
         enfermos: 0,
         preñadas: 0,
         gestante: 0,
-        seco: 0,
+        no_gestante: 0,
       };
-
       response.data.etapas.forEach(item => {
         conteo[item.etapa_de_crecimiento] = item.total;
       });
@@ -65,10 +78,17 @@ const Finca = () => {
 
       response.data.estados_reproductivos.forEach(item => {
         conteoEstados[item.estado_reproductivo] = item.total;
+       
       });
-
+      
+      
       setConteoEstado(conteoEstados);
-      console.log(conteoEstados);
+      console.log(conteoEstado);
+      setTratamiento(response2.data.nombres_vacas_en_tratamiento);
+      setPreñada(response3.data.nombres_vacas_preñadas);
+      setnoGestante(response.data.estados_reproductivos[1].nombres_vacas      );
+      setGestante(response.data.estados_reproductivos[0].nombres_vacas      );
+      setTotal(Object.values(conteo).reduce((acumulador, valor) => acumulador + valor, 0));
     } catch (error) {
       console.log(error);
     } finally {
@@ -76,6 +96,47 @@ const Finca = () => {
     }
   };
 
+  const openModal = (category) => {
+    const filteredData = selectedCategory.filter(item => item.etapa_de_crecimiento === category);
+    console.log('Datos filtrados:', filteredData); // Asegúrate de que contienen el campo 'nombre'
+    setDatos(filteredData);
+    setModalVisible1(true);
+  };
+  
+  const openModal1 = (category) => {
+    let filteredData = [];
+  
+    // Filtramos según la categoría recibida
+    switch (category) {
+      case 'enfermos':
+        filteredData = tratamiento; // Suponiendo que tratamiento es un array de objetos
+        break;
+      case 'prenadas':
+        filteredData = preñada; // Suponiendo que preñada es un array de objetos
+        break;
+      case 'gestante':
+        filteredData = gestante; // Suponiendo que gestante es un array de objetos
+        break;
+      case 'seco':
+        filteredData = nogestante; // Suponiendo que nogestante es un array de objetos
+        break;
+    }
+  
+    // Extraemos solo los nombres de las vacas
+    const nombresVacas = filteredData.map(vaca => vaca || 'Desconocido');
+  
+    console.log('Datos filtrados:', nombresVacas);  // Verifica que solo contienen los nombres
+  
+    setDatos2(nombresVacas);  // Establecemos solo los nombres
+    setModalVisible2(true);  // Muestra el modal con los nombres filtrados
+  };
+  
+  
+  
+  const closeModal = () => {
+    setModalVisible1(false);
+    setSelectedCategory('');
+  };
   useFocusEffect(
     useCallback(() => {
       getConteoEtapas(); // Llama a la función de consultas al enfocar la pantalla
@@ -92,6 +153,51 @@ const Finca = () => {
       setSelectedDate(selectedDate); // Actualiza la fecha seleccionada
     }
   };
+  const obtenerProduccionLeche = async (mes) => {
+    
+    try {
+      const response = await axios.get(`http://192.168.1.71:8081/api/produccion-leche/mes?mes=${mes}`);
+      setProduccionLeche({
+        fecha: `${response.data.año}-${response.data.mes}-01`,  // Formato de fecha: Año-Mes-01 (puedes ajustarlo)
+        totalLitros: response.data.total_leche,
+        numeroVacas: response.data.promedio_animales,
+      });
+      console.log('Producción de leche:', response.data);
+    } catch (error) {
+      console.error('Error al obtener producción de leche:', error);
+    }
+  };
+  const obtenerProduccionLeche1 = async (fecha) => {
+    // Formatear la fecha en formato 'YYYY-MM-DD'
+    const año = fecha.getFullYear();  // Obtener el año de la fecha
+    const mes = String(fecha.getMonth() + 1).padStart(2, '0');  // Obtener el mes (sumamos 1 porque en JS los meses empiezan desde 0)
+    const dia = String(fecha.getDate()).padStart(2, '0');  // Obtener el día del mes
+
+    const fechaFormateada = `${año}-${mes}-${dia}`;  // Formato 'YYYY-MM-DD'
+    console.log(fechaFormateada);
+
+    try {
+        // Enviar la fecha formateada a la API
+        const response = await axios.get(`http://192.168.1.71:8081/api/produccion-leche/fecha?fecha=${fechaFormateada}`);
+        
+        // Setear los datos recibidos en el estado
+        setProduccionLeche({
+            fecha:  response.data.fecha,  // Formato de fecha: Año-Mes-01
+            totalLitros: response.data.total_leche,
+            numeroVacas: response.data.total_animales
+            ,
+        });
+
+        console.log('Producción de leche:', response.data);
+    } catch (error) {
+        console.error('Error al obtener producción de leche:', error);
+    }
+};
+
+  
+  // Llamar la función con el mes 1 (enero)
+ 
+  
 
   return (
     <View style={styles.container}>
@@ -103,58 +209,114 @@ const Finca = () => {
       </View>
 
       {/* Total ganado */}
-      <Text style={styles.headerText}>TOTAL GANADO: 150</Text>
+      <Text style={styles.headerText}>TOTAL GANADO: {total}</Text>
 
       {/* Primera fila: Vacas, Novillas, Terneros, Destetados */}
       <View style={styles.section}>
-        <View style={[styles.card, { backgroundColor: '#E74C3C' }]}>
+        <TouchableOpacity style={[styles.card, { backgroundColor: '#E74C3C' }]} onPress={() => openModal('adulto')}>
           <Image source={require('../Imagenes/vaca22.png')} style={styles.icon} />
           <Text style={styles.cardTitle}>Vacas</Text>
           <Text style={styles.cardNumber}>{conteoEtapas.adulto}</Text>
-        </View>
-        <View style={[styles.card, { backgroundColor: '#27AE60' }]}>
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.card, { backgroundColor: '#27AE60' }]} onPress={() => openModal('juvenil')}>
           <Image source={require('../Imagenes/vaca (1).png')} style={styles.icon} />
           <Text style={styles.cardTitle}>Novillas</Text>
           <Text style={styles.cardNumber}>{conteoEtapas.juvenil}</Text>
-        </View>
-        <View style={[styles.card, { backgroundColor: '#8E44AD' }]}>
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.card, { backgroundColor: '#8E44AD' }]} onPress={() => openModal('ternero')}>
           <Image source={require('../Imagenes/vaca (2).png')} style={styles.icon} />
           <Text style={styles.cardTitle}>Terneros</Text>
           <Text style={styles.cardNumber}>{conteoEtapas.ternero}</Text>
-        </View>
-        <View style={[styles.card, { backgroundColor: '#16A085' }]}>
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.card, { backgroundColor: '#16A085' }]} onPress={() => openModal('cria')}>
           <Image source={require('../Imagenes/vaca (3).png')} style={styles.icon} />
           <Text style={styles.cardTitle}>Destetados</Text>
           <Text style={styles.cardNumber}>{conteoEtapas.cria}</Text>
-        </View>
+        </TouchableOpacity>
       </View>
+      <Modal
+  animationType="slide"
+  transparent={false}
+  visible={modalVisible1}
+  onRequestClose={closeModal}
+>
+  <View style={styles.modalContainer}>
+    <View style={styles.modalContent}>
+      <Text style={styles.modalText1}>
+        Detalles de {datos.length > 0 ? datos[0].etapa_de_crecimiento : 'N/A'}
+      </Text>
+      {datos.length > 0 ? (
+        datos.map((vaca, index) => (
+          <View key={vaca.vaca_id || index} style={styles.modalDetail}>
+            <Text style={styles.reportText1}>
+  Nombre: {vaca.nombre || 'Desconocido'}, Estados: {vaca.estado_reproductivo || 'No especificado'}
+</Text>
+          </View>
+        ))
+      ) : (
+        <Text style={styles.reportText1}>No hay datos disponibles</Text>
+      )}
+      <Button title="Cerrar" onPress={() => setModalVisible1(false)} />
+    </View>
+  </View>
+</Modal>
+
+
 
       {/* Subtítulo: Resumen Condicional */}
       <Text style={styles.subHeaderText}>RESUMEN CONDICIONAL</Text>
 
       {/* Segunda fila: Enfermos, Embarazadas, Ordeño, Seco */}
       <View style={styles.section}>
-        <View style={[styles.card, { backgroundColor: '#E74C3C' }]}>
-          <Image source={require('../Imagenes/botiquin-de-primeros-auxilios.png')} style={styles.icon} />
-          <Text style={styles.cardTitle}>Enfermos</Text>
-          <Text style={styles.cardNumber}>{conteoEstado.enfermos}</Text>
-        </View>
-        <View style={[styles.card, { backgroundColor: '#27AE60' }]}>
-          <Image source={require('../Imagenes/embarazada.png')} style={styles.icon} />
-          <Text style={styles.cardTitle}>Preñada</Text>
-          <Text style={styles.cardNumber}>{conteoEstado.preñadas}</Text>
-        </View>
-        <View style={[styles.card, { backgroundColor: '#F1C40F' }]}>
-          <Image source={require('../Imagenes/ordeno.png')} style={styles.icon} />
-          <Text style={styles.cardTitle}>Ordeño</Text>
-          <Text style={styles.cardNumber}>{conteoEstado.gestante}</Text>
-        </View>
-        <View style={[styles.card, { backgroundColor: '#16A085' }]}>
-          <Image source={require('../Imagenes/ordeno (1).png')} style={styles.icon} />
-          <Text style={styles.cardTitle}>Seco</Text>
-          <Text style={styles.cardNumber}>{conteoEstado.seco}</Text>
-        </View>
-      </View>
+  <TouchableOpacity style={[styles.card, { backgroundColor: '#E74C3C' }]} onPress={() => openModal1('enfermos')}>
+    <Image source={require('../Imagenes/botiquin-de-primeros-auxilios.png')} style={styles.icon} />
+    <Text style={styles.cardTitle}>Enfermos</Text>
+    <Text style={styles.cardNumber}>{conteoEstado.enfermos}</Text>
+  </TouchableOpacity>
+  <TouchableOpacity style={[styles.card, { backgroundColor: '#27AE60' }]} onPress={() => openModal1('prenadas')}>
+    <Image source={require('../Imagenes/embarazada.png')} style={styles.icon} />
+    <Text style={styles.cardTitle}>Preñada</Text>
+    <Text style={styles.cardNumber}>{conteoEstado.preñadas}</Text>
+  </TouchableOpacity>
+  <TouchableOpacity style={[styles.card, { backgroundColor: '#F1C40F' }]} onPress={() => openModal1('gestante')}>
+    <Image source={require('../Imagenes/ordeno.png')} style={styles.icon} />
+    <Text style={styles.cardTitle}>Ordeño</Text>
+    <Text style={styles.cardNumber}>{conteoEstado.gestante}</Text>
+  </TouchableOpacity>
+  <TouchableOpacity style={[styles.card, { backgroundColor: '#16A085' }]} onPress={() => openModal1('seco')}>
+    <Image source={require('../Imagenes/ordeno (1).png')} style={styles.icon} />
+    <Text style={styles.cardTitle}>Seco</Text>
+    <Text style={styles.cardNumber}>{conteoEstado.no_gestante}</Text>
+  </TouchableOpacity>
+</View>
+
+<Modal
+  animationType="slide"
+  transparent={false}
+  visible={modalVisible2}
+>
+  <View style={styles.modalContainer}>
+    <View style={styles.modalContent}>
+      <Text style={styles.modalText1}>
+        Detalles de las vacas
+      </Text>
+      {datos2.length > 0 ? (
+        datos2.map((nombre, index) => (
+          <View key={index} style={styles.modalDetail}>
+            <Text style={styles.reportText1}>
+              Nombre: {nombre}
+            </Text>
+          </View>
+        ))
+      ) : (
+        <Text style={styles.reportText1}>No hay datos disponibles</Text>
+      )}
+      <Button title="Cerrar" onPress={() => setModalVisible2(false)} />
+    </View>
+  </View>
+</Modal>
+
+
 
       {/* Botón para abrir el modal de Reportes */}
       <TouchableOpacity style={styles.button} onPress={() => setModalVisible(true)}>
@@ -187,8 +349,7 @@ const Finca = () => {
           >
             <Picker.Item label="Seleccione un parámetro" value="" />
             <Picker.Item label="Producción de leche" value="produccion_leche" />
-            <Picker.Item label="Estado reproductivo" value="estado_reproductivo" />
-            <Picker.Item label="Condición de salud" value="condicion_salud" />
+            
           </Picker>
 
           {/* Botón para cerrar el modal */}
@@ -238,11 +399,18 @@ const Finca = () => {
               onValueChange={(itemValue) => setSelectedMonth(itemValue)}
             >
               <Picker.Item label="Seleccione un mes" value="" />
-              <Picker.Item label="Enero" value="enero" />
-              <Picker.Item label="Febrero" value="febrero" />
-              <Picker.Item label="Marzo" value="marzo" />
-              <Picker.Item label="Abril" value="Abril" />
-              <Picker.Item label="Mayo" value="Mayo" />
+              <Picker.Item label="Enero" value="1" />
+              <Picker.Item label="Febrero" value="2" />
+              <Picker.Item label="Marzo" value="3" />
+              <Picker.Item label="Abril" value="4" />
+              <Picker.Item label="Mayo" value="5" />
+              <Picker.Item label="Junio" value="6" />
+              <Picker.Item label="Julio" value="7" />
+              <Picker.Item label="Agosto" value="8" />
+              <Picker.Item label="Septiembre" value="9" />
+              <Picker.Item label="Octubre" value="10" />
+              <Picker.Item label="Noviembre" value="11" />
+              <Picker.Item label="Diciembre" value="12" />
               {/* Agregar más meses */}
             </Picker>
           )}
@@ -257,39 +425,9 @@ const Finca = () => {
             />
           )}
 
-          {selectedParam === 'estado_reproductivo' && (
-            <>
-              <TouchableOpacity
-                style={styles.subOption}
-                onPress={() => setSelectedOption('Preñada')}
-              >
-                <Text style={styles.buttonText}>Preñada</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.subOption}
-                onPress={() => setSelectedOption('En celo')}
-              >
-                <Text style={styles.buttonText}>En celo</Text>
-              </TouchableOpacity>
-            </>
-          )}
+          
 
-          {selectedParam === 'condicion_salud' && (
-            <>
-              <TouchableOpacity
-                style={styles.subOption}
-                onPress={() => setSelectedOption('Sana')}
-              >
-                <Text style={styles.buttonText}>Sana</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.subOption}
-                onPress={() => setSelectedOption('Enferma')}
-              >
-                <Text style={styles.buttonText}>Enferma</Text>
-              </TouchableOpacity>
-            </>
-          )}
+          
 
           {/* Muestra la opción seleccionada */}
           {selectedOption !== '' && (
@@ -298,12 +436,21 @@ const Finca = () => {
 
           {/* Botón para cerrar el sub-modal y abrir el modal de reportes */}
           <Button
-            title="GENERAR"
-            onPress={() => {
-              setSubModalVisible(false); // Cierra el sub-modal
-              setReportModalVisible(true); // Abre el modal de reportes
-            }}
-          />
+  title="GENERAR"
+  onPress={() => {
+    setSubModalVisible(false); // Cierra el sub-modal
+    setReportModalVisible(true); // Muestra el modal de reportes
+
+    // Verifica si se ha seleccionado una fecha o un mes y pasa ese valor
+    if (selectedOption === 'Diario' && selectedDate) {
+      // Si la opción seleccionada es "Diario", pasa la fecha seleccionada
+      obtenerProduccionLeche1(selectedDate);
+    } else if (selectedOption === 'Mensual' && selectedMonth) {
+      // Si la opción seleccionada es "Mensual", pasa el mes seleccionado
+      obtenerProduccionLeche(selectedMonth);
+    }
+  }}
+/>
         </View>
       </Modal>
 {/* Modal para mostrar los reportes generados */}
@@ -320,25 +467,15 @@ const Finca = () => {
           {selectedParam === 'produccion_leche' && (
             <View>
               <Text style={styles.reportText}>Producción de Leche ({selectedOption}):</Text>
-              <Text style={styles.reportText}>Fecha: {productionData.fecha}</Text>
-              <Text style={styles.reportText}>Total de litros: {productionData.totalLitros} L</Text>
-              <Text style={styles.reportText}>Número de vacas: {productionData.numeroVacas}</Text>
+              <Text style={styles.reportText}>Fecha: {produccionLeche.fecha}</Text>
+              <Text style={styles.reportText}>Total de litros: {produccionLeche.totalLitros} L</Text>
+              <Text style={styles.reportText}>Número de vacas: {produccionLeche.numeroVacas}</Text>
             </View>
           )}
 
-          {selectedParam === 'estado_reproductivo' && (
-            <View>
-              <Text style={styles.reportText}>Estado Reproductivo ({selectedOption}):</Text>
-              <Text style={styles.reportText}>Datos específicos sobre el estado reproductivo aquí...</Text>
-            </View>
-          )}
+          
 
-          {selectedParam === 'condicion_salud' && (
-            <View>
-              <Text style={styles.reportText}>Condición de Salud ({selectedOption}):</Text>
-              <Text style={styles.reportText}>Datos específicos sobre la salud aquí...</Text>
-            </View>
-          )}
+          
 
           {/* Botón para cerrar el modal de reportes */}
           <Button title="Cerrar" onPress={() => setReportModalVisible(false)} />
@@ -436,6 +573,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#fff',
   },
+  modalText1: {
+    fontSize: 30,
+    marginBottom: 30,
+    fontWeight: 'bold',
+    color: 'black',
+  },
   label: {
     fontSize: 18,
     marginBottom: 20,
@@ -469,7 +612,18 @@ const styles = StyleSheet.create({
     marginVertical: 5,
     color: 'white',
   }
-  
+  ,
+  reportText1: {
+    fontSize: 16,
+    marginVertical: 5,
+    color: 'black',
+  }
+  //modalContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' },
+  //modalContent: { backgroundColor: '#fff', padding: 20, borderRadius: 10, width: '80%', alignItems: 'center' },
+  //modalTitle: { fontSize: 20, fontWeight: 'bold', marginBottom: 10 },
+  //modalText: { fontSize: 16, textAlign: 'center', marginBottom: 20 },
+  //closeButton: { backgroundColor: '#E74C3C', padding: 10, borderRadius: 5 },
+  //closeButtonText: { color: '#fff', fontWeight: 'bold' },
 });
 
 export default Finca;

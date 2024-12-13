@@ -30,14 +30,7 @@ const chequeoVeterinario = ({ route}) => {
           <Text style={styles.cardText}>Vacuna</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.card}
-          onPress={() => navigation.navigate('vacaFallecimiento')}
-        >
-          <Image source={require('../../Imagenes/vacafallecida.jpg')} style={styles.icon} />
-          <Text style={styles.cardText}>Vaca Fallecida</Text>
-
-        </TouchableOpacity>
+        
       </View>
     </View>
   );

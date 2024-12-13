@@ -97,6 +97,17 @@ const[idinseminacion,setInseminacion]=useState(null);
         console.error("Error al actualizar el parto", error);
     }
 };
+const actualizarAborto = async () => {
+  try {
+      const response = await axios.put(`http://192.168.1.71:8081/api/reproducciones/${idinseminacion}`, {
+          fecha_real_parto: abortoData.fecha,
+          estado_parto: partoData.estado,
+      });
+      console.log(response.data.mensaje);
+  } catch (error) {
+      console.error("Error al actualizar el parto", error);
+  }
+};
   const handleSave = () => {
     switch (modalType) {
       case 'Inseminación':
@@ -118,39 +129,32 @@ const[idinseminacion,setInseminacion]=useState(null);
     <View style={styles.container}>
       {/* Botones principales */}
       <View style={styles.cardContainer}>
-      <TouchableOpacity
+  <TouchableOpacity
     style={[styles.card, !puedeInseminar && { opacity: 0.5 }]}
     onPress={() => puedeInseminar && openModal('Inseminación')}
     disabled={!puedeInseminar}
->
+  >
     <Image
-        source={require('../../Imagenes/datosGenerales.png')}
-        style={styles.icon}
+      source={require('../../Imagenes/datosGenerales.png')}
+      style={styles.icon}
     />
     <Text style={styles.cardText}>Inseminación</Text>
-</TouchableOpacity>
+  </TouchableOpacity>
+  </View>
+  <View style={styles.cardContainer}>
+  <TouchableOpacity
+    style={styles.card}
+    onPress={() => openModal('Parto')}
+  >
+    <Image
+      source={require('../../Imagenes/tratamiento.jpg')}
+      style={styles.icon}
+    />
+    <Text style={styles.cardText}>Actualizar estado</Text>
+  </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.card}
-          onPress={() => openModal('Parto')}
-        > 
-          <Image
-            source={require('../../Imagenes/tratamiento.jpg')}
-            style={styles.icon}
-          />
-          <Text style={styles.cardText}>Parto</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.card}
-          onPress={() => openModal('Aborto')}
-        >
-          <Image
-            source={require('../../Imagenes/vaca22.png')}
-            style={styles.icon}
-          />
-          <Text style={styles.cardText}>Aborto</Text>
-        </TouchableOpacity>
-      </View>
+  
+</View>
 
       {/* Modal */}
       <Modal
@@ -192,12 +196,7 @@ const[idinseminacion,setInseminacion]=useState(null);
             )}
             {modalType === 'Parto' && (
               <>
-                <Text>Nombre:</Text>
-                <TextInput
-                  style={styles.input}
-                  value={partoData.nombre}
-                  onChangeText={(text) => setPartoData({ ...partoData, nombre: text })}
-                />
+                
                 <Text>Fecha:</Text>
                 <TextInput
                   style={styles.input}
@@ -218,28 +217,7 @@ const[idinseminacion,setInseminacion]=useState(null);
                 />
               </>
             )}
-            {modalType === 'Aborto' && (
-              <>
-                <Text>Fecha:</Text>
-                <TextInput
-                  style={styles.input}
-                  value={abortoData.fecha}
-                  onChangeText={(text) => setAbortoData({ ...abortoData, fecha: text })}
-                />
-                <Text>Género:</Text>
-                <TextInput
-                  style={styles.input}
-                  value={abortoData.genero}
-                  onChangeText={(text) => setAbortoData({ ...abortoData, genero: text })}
-                />
-                <Text>Nota:</Text>
-                <TextInput
-                  style={styles.input}
-                  value={abortoData.nota}
-                  onChangeText={(text) => setAbortoData({ ...abortoData, nota: text })}
-                />
-              </>
-            )}
+            
             <View style={styles.modalButtons}>
               <TouchableOpacity
                 style={[styles.modalButton, styles.cancelButton]}
@@ -269,9 +247,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   cardContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginBottom: 20,
+    flexDirection: 'row', // Mantener en fila
+  flexWrap: 'wrap',    // Permitir salto a nueva fila
+  justifyContent: 'center', // Centrar elementos horizontalmente
+  alignItems: 'center', // Centrar elementos verticalmente
+  marginBottom: 20,
   },
   card: {
     width: 140,

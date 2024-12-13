@@ -1,8 +1,9 @@
 import { View, Text, StyleSheet, TextInput, Button, Alert, Modal, FlatList } from 'react-native';
-import React, { useState } from 'react';
+import React, { useState, useEffect  } from 'react';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
 import moment from 'moment';
 import 'moment/locale/es';
+import axios from 'axios';
 
 // Configurar el calendario en español
 LocaleConfig.locales['es'] = {
@@ -24,6 +25,19 @@ const Alerta = () => {
   const [modalVisible, setModalVisible] = useState(false); // Estado para controlar el modal
   const [selectedEventIndex, setSelectedEventIndex] = useState(null); // Estado para el evento seleccionado
   const [isEditing, setIsEditing] = useState(false); // Estado para controlar la edición
+
+  const productorId = 1; // Este valor debe provenir del contexto o ser dinámico
+
+  useEffect(() => {
+    // Consultar las alertas desde la API
+    axios.get(`http://192.168.1.71:8081/api/alertas/productor/${productorId}`)
+      .then(response => {
+        setEvents (response.data); // Almacenar las alertas
+      })
+      .catch(error => {
+        console.error('Error al obtener alertas:', error);
+      });
+  }, []);
 
   const onDayPress = (day) => {
     const selectedDayEvents = events.filter(event => event.date === day.dateString);
@@ -48,7 +62,7 @@ const Alerta = () => {
       return;
     }
 
-    const newEvent = { date: selectedDate, type: eventType, description: eventDescription };
+    const newEvent = { productor_id:productorId, fecha_alerta: selectedDate, tipo_alerta: eventType, nota: eventDescription };
 
     if (isEditing) {
       // Editar evento existente
@@ -58,7 +72,18 @@ const Alerta = () => {
       setIsEditing(false); // Resetear modo de edición
     } else {
       // Agregar nuevo evento
-      setEvents([...events, newEvent]);
+      axios.post('http://192.168.1.71:8081/api/alertas', newEvent)
+      .then(response => {
+        // Agregar evento localmente
+        setEvents([...events, newEvent]);
+        
+      })
+      .catch(error => {
+        console.error('Error al registrar evento:', error);
+        Alert.alert('Error', 'Hubo un problema al registrar el evento.');
+      });
+      
+      
     }
 
     // Limpiar los campos y cerrar el modal
@@ -114,12 +139,11 @@ const Alerta = () => {
   // Función para generar los marcadores del calendario
   const getMarkedDates = () => {
     const markedDates = {};
-
     events.forEach((event) => {
-      markedDates[event.date] = {
+      markedDates[event.fecha_alerta] = {
         selected: true,
         marked: true,
-        selectedColor: getEventColor(event.type), // Color del evento basado en el tipo
+        selectedColor: getEventColor(event.tipo_alerta), // Color del evento basado en el tipo
       };
     });
 
@@ -194,7 +218,7 @@ const Alerta = () => {
         data={events}
         keyExtractor={(item, index) => index.toString()}
         renderItem={({ item, index }) => (
-          <View style={[styles.eventItem, { backgroundColor: getEventColor(item.type) }]}>
+          <View style={[styles.eventItem, { backgroundColor: getEventColor(item.tipo_alerta) }]}>
             <Text
               style={[
                 styles.eventText,
@@ -202,7 +226,7 @@ const Alerta = () => {
               ]}
               onPress={() => setSelectedEventIndex(index)} // Seleccionar evento
             >
-              {`Fecha: ${item.date}, Tipo: ${item.type}, Descripción: ${item.description}`}
+              {`Fecha: ${item.fecha_alerta}, Tipo: ${item.tipo_alerta}, Descripción: ${item.nota}`}
             </Text>
           </View>
         )}
