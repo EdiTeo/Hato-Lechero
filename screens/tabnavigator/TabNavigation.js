@@ -12,57 +12,58 @@ const Botonsito = createBottomTabNavigator();
 const TabNavigation = () => {
   return (
     <Botonsito.Navigator>
-      <Botonsito.Screen 
-        name='Finca' 
-        component={Finca} 
+      <Botonsito.Screen
+        name='Finca'
+        component={Finca}
         options={{
-          headerShown: false, 
-          tabBarIcon: ({focused}) => (
+          headerShown: false,
+          tabBarIcon: ({ focused }) => (
             <Image
               source={require('../Imagenes/finca.png')}
-              style={{ width: 30, height: 30,tintColor: focused ? 'red' : 'black' }}
+              style={{ width: 30, height: 30, tintColor: focused ? 'red' : 'black' }}
             />
           ),
         }}
       />
 
-      <Botonsito.Screen style={{}}
-        name='Animales' 
-        component={Vaca} 
+      <Botonsito.Screen
+        name='Animales'
+        component={Vaca}
         options={{
-          headerShown: false, 
-          tabBarIcon: ({focused}) => (
+          headerShown: false,
+          tabBarIcon: ({ focused }) => (
             <Image
               source={require('../Imagenes/vaca.png')}
-              style={{ width: 30, height: 30,tintColor: focused ? 'red' : 'black'  }}
+              style={{ width: 30, height: 30, tintColor: focused ? 'red' : 'black' }}
             />
           ),
         }}
       />
 
-      <Botonsito.Screen 
-        name='Produccion' 
-        component={Produccion} 
+      <Botonsito.Screen
+        name='Produccion'
+        component={Produccion}
         options={{
-          headerShown: false, 
-          tabBarIcon: ({focused}) => (
+          headerShown: false,
+          tabBarIcon: ({ focused }) => (
             <Image
               source={require('../Imagenes/produccion.png')}
-              style={{ width: 30, height: 30,tintColor: focused ? 'red' : 'black'  }}
+              style={{ width: 30, height: 30, tintColor: focused ? 'red' : 'black' }}
             />
           ),
+          
         }}
       />
 
-      <Botonsito.Screen 
-        name='Alerta' 
-        component={Alerta} 
+      <Botonsito.Screen
+        name='Alerta'
+        component={Alerta}
         options={{
-          headerShown: false, 
-          tabBarIcon: ({focused}) => (
+          headerShown: false,
+          tabBarIcon: ({ focused }) => (
             <Image
               source={require('../Imagenes/alerta.png')}
-              style={{ width: 30, height: 30,tintColor: focused ? 'red' : 'black'  }}
+              style={{ width: 30, height: 30, tintColor: focused ? 'red' : 'black' }}
             />
           ),
         }}
@@ -71,21 +72,4 @@ const TabNavigation = () => {
   );
 };
 
-export default TabNavigation
-
-
-
-
-
-/**
- * options={{headerShown: false, 
-            tabBarIcon:(tabInfo)=>{
-                return (
-                    <Image 
-                    source={require('../screens/icon.png')} 
-                    style={{width:20,height:20}}
-                    />
-            );
-        },
-        }}/>
- */
+export default TabNavigation;

@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Modal, TouchableOpacity } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import {Picker} from '@react-native-picker/picker';
+import { Picker } from '@react-native-picker/picker';
+import axios from 'axios';
+
 const FormularioAddVaca = ({ navigation, route }) => {
   const [nombre, setNombre] = useState('');
   const [etapaCrecimiento, setEtapaCrecimiento] = useState('');
@@ -10,45 +12,100 @@ const FormularioAddVaca = ({ navigation, route }) => {
   const [fechaNacimiento, setFechaNacimiento] = useState(new Date());
   const [estado, setEstado] = useState('');
   const [showDatePicker, setShowDatePicker] = useState(false);
-
+const[vacaData1,setvacaData1]=useState('');
   const [modalVisible, setModalVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
 
   useEffect(() => {
     if (route.params?.vacaEditar) {
+      // Si existe vacaEditar, se editan los datos de la vaca
       const vacaEditar = route.params.vacaEditar;
       setNombre(vacaEditar.nombre);
-      setEtapaCrecimiento(vacaEditar.etapaCrecimiento);
-      setEstadoReproductivo(vacaEditar.estadoReproductivo);
+      setEtapaCrecimiento(vacaEditar.etapa_de_crecimiento);
+      setEstadoReproductivo(vacaEditar.estado_reproductivo);
       setRaza(vacaEditar.raza);
-      setFechaNacimiento(new Date(vacaEditar.fechaNacimiento));
+      setFechaNacimiento(new Date(vacaEditar.fecha_nacimiento));
       setEstado(vacaEditar.estado);
+    } else {
+      // Si no existe vacaEditar (agregar una nueva vaca), resetear los estados
+      setNombre('');
+      setEtapaCrecimiento('');
+      setEstadoReproductivo('');
+      setRaza('');
+      setFechaNacimiento(new Date());
+      setEstado('');
     }
   }, [route.params?.vacaEditar]);
+  
 
-  const agregarVaca = () => {
-    if(validacionEntradas()){
-      const nuevaVaca = {
-        id: route.params?.vacaEditar?.id || Math.floor(Math.random() * 100000).toString(),
+  const agregarVaca = async () => {
+    if (validacionEntradas()) {
+      const vacaData = {
         nombre,
-        etapaCrecimiento,
-        estadoReproductivo,
+        etapa_de_crecimiento: etapaCrecimiento,
+        estado_reproductivo: estadoReproductivo,
         raza,
-        fechaNacimiento: fechaNacimiento.toLocaleDateString(),
+        fecha_nacimiento: fechaNacimiento.toISOString().split('T')[0],
         estado,
       };
-
-      if (route.params?.vacaEditar) {
-        route.params.onGuardar(nuevaVaca); //solo si se esta editando
-      } else {
-        route.params.onAgregarVaca(nuevaVaca); //si se esta agregando
+  
+      try {
+        let response;
+        if (route.params?.vacaEditar) {
+          // Si se está editando, enviar una solicitud PUT
+          response = await axios.put(`http://192.168.1.71:8081/api/vacas/${route.params.vacaEditar.vaca_id}`, vacaData);
+        } else {
+          // Si se está agregando una nueva vaca, enviar una solicitud POST
+          console.log(vacaData); // Verificar que los datos sean correctos
+          vacaData.productor_id = 1;
+          response = await axios.post('http://192.168.1.71:8081/api/vacas', vacaData);
+        }
+      
+        const jsonResponse = response.data;
+        console.log('Respuesta del servidor:', jsonResponse); // Ver la respuesta completa
+      
+        if (response.status === 201) {
+          setAlertMessage('Operación exitosa');
+          if (route.params?.onGuardar) {
+            route.params.onGuardar(jsonResponse.data);
+          } else if (route.params?.onAgregarVaca) {
+            route.params.onAgregarVaca(jsonResponse.data);
+          }
+          navigation.goBack();
+      
+          limpiarDatosFormulario();
+        } else if (response.status === 200) {
+          setAlertMessage('Actualización exitosa');
+          if (route.params?.onGuardar) {
+            route.params.onGuardar(jsonResponse.data);
+          } else if (route.params?.onAgregarVaca) {
+            route.params.onAgregarVaca(jsonResponse.data);
+          }
+          setvacaData1(vacaData);
+        } else {
+          throw new Error(jsonResponse.error || 'Ocurrió un error inesperado');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        setAlertMessage(`Error: ${error.message}`);
       }
-      navigation.goBack();
+      setModalVisible(true);
     }
   };
+  
+  // Función para limpiar los datos del formulario
+  const limpiarDatosFormulario = () => {
+    setNombre('');
+    setEtapaCrecimiento('');
+    setEstadoReproductivo('');
+    setRaza('');
+    setFechaNacimiento(new Date()); // O ajusta esto al valor inicial que desees
+    setEstado(''); // Si usas algún estado como "activo" o "inactivo", ajusta el valor
+  };
+  
 
   const validacionEntradas = () => {
-    const onlyLettersRegex = /^[a-zA-Z\s]+$/;//regex solo letras
+    const onlyLettersRegex = /^[a-zA-Z\s]+$/;
     if (!nombre || !etapaCrecimiento || !estadoReproductivo || !raza || !estado) {
       setAlertMessage('Por favor, complete todos los campos.');
       setModalVisible(true);
@@ -65,26 +122,23 @@ const FormularioAddVaca = ({ navigation, route }) => {
   return (
     <View style={styles.container}>
       <TextInput placeholder="Nombre de la Vaca" style={styles.input} value={nombre} onChangeText={setNombre} />
-
       <Text style={styles.label}>Etapa de Crecimiento:</Text>
       <Picker selectedValue={etapaCrecimiento} style={styles.picker} onValueChange={setEtapaCrecimiento}>
         <Picker.Item label="Selecciona la etapa" value="" />
         <Picker.Item label="Ternero" value="ternero" />
         <Picker.Item label="Juvenil" value="juvenil" />
         <Picker.Item label="Adulto" value="adulto" />
+        <Picker.Item label="Cría" value="cria" />
       </Picker>
-
       <Text style={styles.label}>Estado Reproductivo:</Text>
       <Picker selectedValue={estadoReproductivo} style={styles.picker} onValueChange={setEstadoReproductivo}>
         <Picker.Item label="Selecciona el estado" value="" />
-        <Picker.Item label="Gestante" value="Gestante" />
-        <Picker.Item label="No gestante" value="No gestante" />
-        <Picker.Item label="En lactancia" value="En Lactancia" />
-        <Picker.Item label="Seco" value="Seco" />
+        <Picker.Item label="Gestante" value="gestante" />
+        <Picker.Item label="No gestante" value="no_gestante" />
+        <Picker.Item label="En lactancia" value="en_lactancia" />
+        <Picker.Item label="Seco" value="seco" />
       </Picker>
-
       <TextInput placeholder="Raza" style={styles.input} value={raza} onChangeText={setRaza} />
-
       <Text style={styles.label}>Fecha de Nacimiento:</Text>
       <Button color="green" title="Seleccionar Fecha" onPress={() => setShowDatePicker(true)} />
       {showDatePicker && (
@@ -100,29 +154,24 @@ const FormularioAddVaca = ({ navigation, route }) => {
         />
       )}
       <Text style={styles.dateText}>Fecha seleccionada: {fechaNacimiento.toLocaleDateString()}</Text>
-
       <Text style={styles.label}>Estado:</Text>
       <Picker selectedValue={estado} style={styles.picker} onValueChange={setEstado}>
         <Picker.Item label="Selecciona el estado" value="" />
         <Picker.Item label="Activa" value="activa" />
         <Picker.Item label="Inactiva" value="inactiva" />
       </Picker>
-
       <View style={styles.buttonContainer}>
         <Button title="Cancelar" color="#EC221F" onPress={() => navigation.goBack()} />
         <Button title="Aceptar" color="green" onPress={agregarVaca} />
       </View>
-
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
+      <Modal animationType="slide" transparent={true} visible={modalVisible} onRequestClose={() => setModalVisible(false)}>
         <View style={styles.modalBackground}>
           <View style={styles.modalContainer}>
             <Text style={styles.modalText}>{alertMessage}</Text>
-            <TouchableOpacity style={styles.closeButton} onPress={() => setModalVisible(false)}>
+            <TouchableOpacity style={styles.closeButton} onPress={() => {
+    setModalVisible(false); // Cierra el modal
+    navigation.navigate('DetallesVaca', { vacaData1 }); // Navega a la pantalla 'DetallesVaca' con los datos
+  }}>
               <Text style={styles.closeButtonText}>Cerrar</Text>
             </TouchableOpacity>
           </View>
