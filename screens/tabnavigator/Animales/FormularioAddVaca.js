@@ -53,12 +53,12 @@ const[vacaData1,setvacaData1]=useState('');
         let response;
         if (route.params?.vacaEditar) {
           // Si se está editando, enviar una solicitud PUT
-          response = await axios.put(`http://192.168.1.71:8081/api/vacas/${route.params.vacaEditar.vaca_id}`, vacaData);
+          response = await axios.put(`http://192.168.20.3:8081/api/vacas/${route.params.vacaEditar.vaca_id}`, vacaData);
         } else {
           // Si se está agregando una nueva vaca, enviar una solicitud POST
           console.log(vacaData); // Verificar que los datos sean correctos
           vacaData.productor_id = 1;
-          response = await axios.post('http://192.168.1.71:8081/api/vacas', vacaData);
+          response = await axios.post('http://192.168.20.3:8081/api/vacas', vacaData);
         }
       
         const jsonResponse = response.data;

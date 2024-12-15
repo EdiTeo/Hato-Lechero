@@ -19,7 +19,7 @@ const datosVeterinarios = ({ route, navigation }) => {
     React.useCallback(() => {
       async function getHistorial() {
         try {
-          const response = await axios.get(`http://192.168.1.71:8081/api/vacas/${datos.vaca_id}/historial`);
+          const response = await axios.get(`http://192.168.20.3:8081/api/vacas/${datos.vaca_id}/historial`);
           const tratamientos = Array.isArray(response.data.tratamientos) ? response.data.tratamientos : [];
           const vacunaciones = Array.isArray(response.data.vacunaciones) ? response.data.vacunaciones : [];
           

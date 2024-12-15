@@ -18,7 +18,7 @@ const inforVaca = ({ route }) => {
   const handleDelete = async () => {
     try {
       // Realizar solicitud DELETE a la API
-      await axios.delete(`http://192.168.1.71:8081/api/vacas/${route.params.vaca.vaca_id}`);
+      await axios.delete(`http://192.168.20.3:8081/api/vacas/${route.params.vaca.vaca_id}`);
       Alert.alert('Éxito', 'La vaca ha sido eliminada.');
       setModalVisible(false);
       navigation.goBack(); // Navegar a la pantalla anterior

@@ -5,7 +5,8 @@ import { useNavigation } from '@react-navigation/native';
 
 const Registro = () => {
   const navigation = useNavigation();
-
+   
+  
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -35,7 +36,7 @@ const Registro = () => {
         <Text style={styles.menuText}>CONTROL GANADERO</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.menuItem}>
+      <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('Login')}>
         <Icon name="sign-out" size={24} color="black" />
         <Text style={styles.menuText}>CERRAR SESIÓN</Text>
       </TouchableOpacity>

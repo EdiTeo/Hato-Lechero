@@ -14,7 +14,7 @@ const Vacas = ({ navigation, route }) => {
     React.useCallback(() => {
       async function getConteoEtapas() {
         try {
-          const response = await axios.get('http://192.168.1.71:8081/api/vaca');
+          const response = await axios.get('http://192.168.20.3:8081/api/vaca');
           
           // Verificar si response.data existe y tiene vacas
           if (response.data && Array.isArray(response.data) && response.data.length > 0) {

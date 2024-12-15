@@ -38,7 +38,7 @@ const formularioVacuna = ({ navigation, route }) => {
 
       try {
         console.log("Enviando:", nuevaVaca);
-        const response = await axios.post(`http://192.168.1.71:8081/api/historial-medico`, nuevaVaca);  // Reemplaza localhost por la IP de tu máquina
+        const response = await axios.post(`http://192.168.20.3:8081/api/historial-medico`, nuevaVaca);  // Reemplaza localhost por la IP de tu máquina
         console.log("Respuesta:", response);
 
         if (response.status === 200 || response.status === 201) {

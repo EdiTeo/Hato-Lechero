@@ -47,7 +47,7 @@ const Produccion = () => {
       ]);
       console.log(registro);
       try {
-        const response = await axios.post('http://192.168.1.71:8081/api/produccion-leche', {
+        const response = await axios.post('http://192.168.20.3:8081/api/produccion-leche', {
           productor_id: 1, // Siempre un número entero
           cantidad_animales: parseInt(animalesOrdeñados, 10), // Convierte a entero
           cantidad_litros: parseFloat(lecheExtraida), // Convierte a flotante
@@ -75,13 +75,13 @@ const Produccion = () => {
   );
 
   const obtenerProduccionHoy = async () => {
-    const response = await axios.get('http://192.168.1.71:8081/api/produccion-leche/hoy');
+    const response = await axios.get('http://192.168.20.3:8081/api/produccion-leche/hoy');
     setProduccionHoy(response.data);
     console.log('Producción de hoy:', produccionHoy);
   };
   
   const obtenerProduccionMensual = async () => {
-    const response = await axios.get('http://192.168.1.71:8081/api/produccion-leche/mes-actual');
+    const response = await axios.get('http://192.168.20.3:8081/api/produccion-leche/mes-actual');
     setProduccionMes(response.data);
     console.log('Producción de hoy:', produccionMes);
 

@@ -1,8 +1,6 @@
-
-import {View, Text} from 'react-native';
 import React from 'react';
-import {createStackNavigator } from '@react-navigation/stack';
-import { NavigationContainer } from '@react-navigation/native';
+import { View, Text, StyleSheet } from 'react-native';
+import { createStackNavigator } from '@react-navigation/stack';
 import DatosVeterinarios from './tabnavigator/Animales/datosVeterinarios';
 import chequeoVeterinario from './tabnavigator/Animales/chequeoVeterinario';
 import Control from './tabnavigator/Control';
@@ -17,71 +15,61 @@ import datosGenerales from './tabnavigator/Animales/datosGenerales';
 import EstadoReproductivo from './tabnavigator/Animales/estadoReproductivo';
 import embarazo from './tabnavigator/Animales/embarazo';
 
- 
-//=====================================================
-//AÑADIR A ESTA SECCION LAS VENTANAS O REDIRECCIONAMIENTOS QUE SE QUIERE MOSTRAR AL HACER CLIC 
-//=====================================================
 const Stack = createStackNavigator();
 
 const Inicio = () => {
   return (
-    <NavigationContainer>
-      <Stack.Navigator>
-        
-        <Stack.Screen 
+    <Stack.Navigator>
+      <Stack.Screen 
         name="Control" 
         component={Control} 
         options={{ headerShown: false }} />
-        <Stack.Screen 
+      <Stack.Screen 
         name="Barra" 
         component={Barra} 
         options={{ headerShown: false }} />
-
-        <Stack.Screen 
+      <Stack.Screen 
         name="Vacas" 
         component={Vacas} 
         options={{ headerShown: false }} />
-       
-
-        <Stack.Screen 
-          name="FormularioAddVaca" 
-          component={FormularioAddVaca}
-          options={{ headerShown: false }} 
-        />
-        <Stack.Screen 
+      <Stack.Screen 
+        name="FormularioAddVaca" 
+        component={FormularioAddVaca}
+        options={{ headerShown: false }} 
+      />
+      <Stack.Screen 
         name="DatosVeterinarios" 
         component={DatosVeterinarios} />
-        <Stack.Screen 
+      <Stack.Screen 
         name="chequeoVeterinario" 
         component={chequeoVeterinario} />
-
-        <Stack.Screen 
+      <Stack.Screen 
         name="vacaFallecimiento" 
         component={formularioFallecimiento} />
-
-<Stack.Screen 
+      <Stack.Screen 
         name="tratamiento" 
         component={formularioTratamiento} />
-        <Stack.Screen 
+      <Stack.Screen 
         name="vacuna" 
         component={formularioVacuna} />
-        <Stack.Screen 
+      <Stack.Screen 
         name="DetallesVaca" 
         component={infoVaca} />
-        <Stack.Screen 
+      <Stack.Screen 
         name="datosGenerales" 
         component={datosGenerales} />
-        <Stack.Screen 
+      <Stack.Screen 
         name="estadoReproductivo" 
         component={EstadoReproductivo} />
-        <Stack.Screen 
+      <Stack.Screen 
         name="embarazo" 
         component={embarazo} />
-      </Stack.Navigator>
-      
-      
-    </NavigationContainer>
+    </Stack.Navigator>
   );
 };
+
+const styles = StyleSheet.create({
+  container: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+});
 
 export default Inicio;
