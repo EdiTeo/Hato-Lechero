@@ -49,12 +49,13 @@ const Finca = () => {
   const getConteoEtapas = async () => {
     try {
       setLoading(true); // Activa el estado de carga
-      const response = await axios.get('http://192.168.20.3:8081/api/vacas/contar-por-etapa-y-estado');
-      const response2 = await axios.get('http://192.168.20.3:8081/api/historial-medico/vacas-en-tratamiento-hoy');
-      const response3 = await axios.get('http://192.168.20.3:8081/api/vacas-preñadas');
-      const response4 = await axios.get('http://192.168.20.3:8081/api/vaca');
-      setSelectedCategory(response4.data);
+      const response = await axios.get(`http://192.168.1.71:19000/api/contar/${1}`);
+      const response4 = await axios.get(`http://192.168.1.71:19000/api/vacas/${1}`);
+      const response2 = await axios.get(`http://192.168.1.71:19000/api/vacas/tratamiento/${1}`);
+      const response3 = await axios.get(`http://192.168.1.71:19000/api/vacas/prenadas/${1}`);
       
+      setSelectedCategory(response4.data);
+      console.log(response4.data);
       setTratamiento(response2.data.nombres_vacas_en_tratamiento);
       const conteo = {
         ternero: 0,
@@ -156,7 +157,7 @@ const Finca = () => {
   const obtenerProduccionLeche = async (mes) => {
     
     try {
-      const response = await axios.get(`http://192.168.20.3:8081/api/produccion-leche/mes?mes=${mes}`);
+      const response = await axios.get(`http://192.168.1.71:19000/api/produccion-leche/mes?mes=${mes}`);
       setProduccionLeche({
         fecha: `${response.data.año}-${response.data.mes}-01`,  // Formato de fecha: Año-Mes-01 (puedes ajustarlo)
         totalLitros: response.data.total_leche,
@@ -178,7 +179,7 @@ const Finca = () => {
 
     try {
         // Enviar la fecha formateada a la API
-        const response = await axios.get(`http://192.168.20.3:8081/api/produccion-leche/fecha?fecha=${fechaFormateada}`);
+        const response = await axios.get(`http://192.168.1.71:19000/api/produccion-leche/fecha?fecha=${fechaFormateada}`);
         
         // Setear los datos recibidos en el estado
         setProduccionLeche({

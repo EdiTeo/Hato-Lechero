@@ -19,7 +19,8 @@ const Register = ({ navigation }) => {
 
     setLoading(true);
     try {
-      await axios.post('http://192.168.20.3:8081/api/register', { nombre, celular, email, password });
+      
+      await axios.post('http://192.168.1.71:19000/api/register', { nombre, celular, email, password });
       Alert.alert('Registro exitoso');
       navigation.navigate('Login');
     } catch (error) {

@@ -14,10 +14,13 @@ import infoVaca from './tabnavigator/Animales/infoVaca';
 import datosGenerales from './tabnavigator/Animales/datosGenerales';
 import EstadoReproductivo from './tabnavigator/Animales/estadoReproductivo';
 import embarazo from './tabnavigator/Animales/embarazo';
-
+import { useRoute } from '@react-navigation/native';
 const Stack = createStackNavigator();
 
 const Inicio = () => {
+  const route = useRoute();
+    const { productor_id } = route.params;
+    console.log('Productor ID:', productor_id);
   return (
     <Stack.Navigator>
       <Stack.Screen 

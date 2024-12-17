@@ -30,7 +30,7 @@ const Alerta = () => {
 
   useEffect(() => {
     // Consultar las alertas desde la API
-    axios.get(`http://192.168.20.3:8081/api/alertas/productor/${productorId}`)
+    axios.get(`http://192.168.1.71:19000/api/alertas/productor/${productorId}`)
       .then(response => {
         setEvents (response.data); // Almacenar las alertas
       })
@@ -72,7 +72,7 @@ const Alerta = () => {
       setIsEditing(false); // Resetear modo de edición
     } else {
       // Agregar nuevo evento
-      axios.post('http://192.168.20.3:8081/api/alertas', newEvent)
+      axios.post('http://192.168.1.71:19000/api/alertas', newEvent)
       .then(response => {
         // Agregar evento localmente
         setEvents([...events, newEvent]);

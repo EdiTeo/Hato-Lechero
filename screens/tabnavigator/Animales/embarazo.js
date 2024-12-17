@@ -41,7 +41,7 @@ const[idinseminacion,setInseminacion]=useState(null);
   useEffect(() => {
     const verificarInseminacion = async () => {
         try {
-            const response = await fetch(`http://192.168.20.3:8081/api/vaca/${route.route.params.vaca.vaca_id}/inseminacion-pendiente`);
+            const response = await fetch(`http://192.168.1.71:19000/api/vaca/${route.route.params.vaca.vaca_id}/inseminacion-pendiente`);
             const data = await response.json();
             setInseminacion(data.reproduccion_id);
 
@@ -71,7 +71,7 @@ const[idinseminacion,setInseminacion]=useState(null);
   };
   const saveInseminacion = async () => {
     try {
-      const response = await axios.post('http://192.168.20.3:8081/api/reproducciones', {
+      const response = await axios.post('http://192.168.1.71:19000/api/reproducciones', {
         vaca_id: route.route.params.vaca.vaca_id, // ID de la vaca
         fecha_inseminacion: inseminacionData.fecha,
         raza_toro: inseminacionData.razaPadre,
@@ -88,7 +88,7 @@ const[idinseminacion,setInseminacion]=useState(null);
   };
   const actualizarParto = async () => {
     try {
-        const response = await axios.put(`http://192.168.20.3:8081/api/reproducciones/${idinseminacion}`, {
+        const response = await axios.put(`http://192.168.1.71:19000/api/reproducciones/${idinseminacion}`, {
             fecha_real_parto: partoData.fecha,
             estado_parto: partoData.estado,
         });
@@ -99,7 +99,7 @@ const[idinseminacion,setInseminacion]=useState(null);
 };
 const actualizarAborto = async () => {
   try {
-      const response = await axios.put(`http://192.168.20.3:8081/api/reproducciones/${idinseminacion}`, {
+      const response = await axios.put(`http://192.168.1.71:19000/api/reproducciones/${idinseminacion}`, {
           fecha_real_parto: abortoData.fecha,
           estado_parto: partoData.estado,
       });

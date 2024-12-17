@@ -17,16 +17,19 @@ const Login = ({ navigation }) => {
 
     setLoading(true);
     try {
-      const response = await axios.post('http://192.168.20.3:8081/api/login', {
+      
+      const response = await axios.post('http://192.168.1.71:19000/api/login', {
         celular,
         password,
       });
 
-      console.log('Datos enviados:', { celular, password });
-
+      
+      console.log('Datos enviados:',  response.data.productor_id );
       //Si el inicio de sesión es exitoso
       Alert.alert('Éxito', response.data.message);
-      navigation.navigate('Inicio'); //Redirigir a la pantalla principal
+      navigation.navigate('Inicio', {
+        productor_id: response.data.productor_id, // Pasa el productor_id a la pantalla de inicio
+    }); //Redirigir a la pantalla principal
     } catch (error) {
       //Manejar errores
       console.error('Error al iniciar sesión:', error);
