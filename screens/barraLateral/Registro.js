@@ -11,7 +11,7 @@ const Registro = () => {
     <View style={styles.container}>
       <View style={styles.header}>
         <Image 
-          source={require('../Imagenes/holaa.jpg')}
+          source={{uri: 'https://res.cloudinary.com/deqnrwzno/image/upload/v1734441237/holaa_h5pvk0.jpg'}}
           style={styles.logo}
         />
       </View>

@@ -18,7 +18,7 @@ const inforVaca = ({ route }) => {
   const handleDelete = async () => {
     try {
       // Realizar solicitud DELETE a la API
-      await axios.delete(`http://192.168.1.71:19000/api/vacas/${route.params.vaca.vaca_id}`);
+      await axios.delete(`http://192.168.1.71:8081/api/vacas/${route.params.vaca.vaca_id}`);
       Alert.alert('Éxito', 'La vaca ha sido eliminada.');
       setModalVisible(false);
       navigation.goBack(); // Navegar a la pantalla anterior
@@ -36,7 +36,7 @@ const inforVaca = ({ route }) => {
           onPress={() => navigation.navigate('datosGenerales', route)}
         >
           <Image
-            source={require('../../Imagenes/datosGenerales.png')}
+            source={{uri: 'https://res.cloudinary.com/deqnrwzno/image/upload/v1734441237/datosGenerales_qbtngj.png'}}
             style={styles.icon}
           />
           <Text style={styles.cardText}>Datos generales</Text>
@@ -49,7 +49,7 @@ const inforVaca = ({ route }) => {
           onPress={() => navigation.navigate('DatosVeterinarios', route)}
         >
           <Image
-            source={require('../../Imagenes/tratamiento.jpg')}
+            source={{uri: 'https://res.cloudinary.com/deqnrwzno/image/upload/v1734441237/tratamiento_c0vbeq.jpg'}}
             style={styles.icon}
           />
           <Text style={styles.cardText}>Datos veterinarios</Text>
@@ -58,7 +58,7 @@ const inforVaca = ({ route }) => {
         <TouchableOpacity style={styles.card}
         onPress={() => navigation.navigate('estadoReproductivo', route.params)}>
           <Image
-            source={require('../../Imagenes/vaca22.png')}
+            source={{uri: 'https://res.cloudinary.com/deqnrwzno/image/upload/v1734441238/vaca22_wfhu6s.png'}}
             style={styles.icon}
             
           />

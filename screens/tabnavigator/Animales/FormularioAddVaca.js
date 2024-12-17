@@ -3,8 +3,11 @@ import { View, Text, TextInput, Button, StyleSheet, Modal, TouchableOpacity } fr
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
 import axios from 'axios';
+import { useRoute } from '@react-navigation/native';
 
 const FormularioAddVaca = ({ navigation, route }) => {
+  const route1 = useRoute();
+  const { productor_id } = route1.params;
   const [nombre, setNombre] = useState('');
   const [etapaCrecimiento, setEtapaCrecimiento] = useState('');
   const [estadoReproductivo, setEstadoReproductivo] = useState('');
@@ -19,6 +22,7 @@ const[vacaData1,setvacaData1]=useState('');
   useEffect(() => {
     if (route.params?.vacaEditar) {
       // Si existe vacaEditar, se editan los datos de la vaca
+      console.log("marco");
       const vacaEditar = route.params.vacaEditar;
       setNombre(vacaEditar.nombre);
       setEtapaCrecimiento(vacaEditar.etapa_de_crecimiento);
@@ -53,12 +57,12 @@ const[vacaData1,setvacaData1]=useState('');
         let response;
         if (route.params?.vacaEditar) {
           // Si se está editando, enviar una solicitud PUT
-          response = await axios.put(`http://192.168.1.71:19000/api/vacas/${route.params.vacaEditar.vaca_id}`, vacaData);
+          response = await axios.put(`http://192.168.1.71:8081/api/vacas/${route.params.vacaEditar.vaca_id}`, vacaData);
         } else {
           // Si se está agregando una nueva vaca, enviar una solicitud POST
-          console.log(vacaData); // Verificar que los datos sean correctos
-          vacaData.productor_id = 1;
-          response = await axios.post('http://192.168.1.71:19000/api/vacas', vacaData);
+          //  // Verificar que los datos sean correctos
+          vacaData.productor_id = productor_id;
+          response = await axios.post('http://192.168.1.71:8081/api/vacas', vacaData);
         }
       
         const jsonResponse = response.data;
@@ -71,7 +75,7 @@ const[vacaData1,setvacaData1]=useState('');
           } else if (route.params?.onAgregarVaca) {
             route.params.onAgregarVaca(jsonResponse.data);
           }
-          navigation.goBack();
+          
       
           limpiarDatosFormulario();
         } else if (response.status === 200) {
@@ -81,7 +85,9 @@ const[vacaData1,setvacaData1]=useState('');
           } else if (route.params?.onAgregarVaca) {
             route.params.onAgregarVaca(jsonResponse.data);
           }
+          setNombre(vacaData.nombre)
           setvacaData1(vacaData);
+          console.log(nombre);
         } else {
           throw new Error(jsonResponse.error || 'Ocurrió un error inesperado');
         }
@@ -90,6 +96,7 @@ const[vacaData1,setvacaData1]=useState('');
         setAlertMessage(`Error: ${error.message}`);
       }
       setModalVisible(true);
+      navigation.goBack();
     }
   };
   
@@ -170,7 +177,7 @@ const[vacaData1,setvacaData1]=useState('');
             <Text style={styles.modalText}>{alertMessage}</Text>
             <TouchableOpacity style={styles.closeButton} onPress={() => {
     setModalVisible(false); // Cierra el modal
-    navigation.navigate('DetallesVaca', { vacaData1 }); // Navega a la pantalla 'DetallesVaca' con los datos
+     // Navega a la pantalla 'DetallesVaca' con los datos
   }}>
               <Text style={styles.closeButtonText}>Cerrar</Text>
             </TouchableOpacity>

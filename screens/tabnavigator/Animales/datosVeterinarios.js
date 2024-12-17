@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-nati
 import axios from 'axios';
 import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
+import dayjs from 'dayjs'; // Importamos dayjs
 
 const datosVeterinarios = ({ route, navigation }) => {
   const [datos, setDatos] = useState(route.params?.params?.vaca || route.params?.params?.vacaData1);
@@ -19,14 +20,14 @@ const datosVeterinarios = ({ route, navigation }) => {
     React.useCallback(() => {
       async function getHistorial() {
         try {
-          const response = await axios.get(`http://192.168.1.71:19000/api/vacas/${datos.vaca_id}/historial`);
+          const response = await axios.get(`http://192.168.1.71:8081/api/vacas/${datos.vaca_id}/historial`);
           const tratamientos = Array.isArray(response.data.tratamientos) ? response.data.tratamientos : [];
           const vacunaciones = Array.isArray(response.data.vacunaciones) ? response.data.vacunaciones : [];
           
           // Establece el historial de los tratamientos y vacunaciones
           setHistorial({ tratamientos, vacunaciones });
           
-          console.log(historial);
+          console.log(tratamientos);
           console.log('Vacunaciones:', vacunaciones);  // Verificamos si es un arreglo
         } catch (error) {
           console.log(error);
@@ -58,14 +59,21 @@ const datosVeterinarios = ({ route, navigation }) => {
               <Text style={styles.tableCell}>Notas</Text>
             </View>
             <ScrollView style={styles.tableContainer}>
-              {tratamientos.map((item, index) => (
-                <View key={index} style={styles.tableRow}>
-                  <Text style={styles.tableCell}>{item.fecha_inicio}</Text>
-                  <Text style={styles.tableCell}>{item.dias}</Text>
-                  <Text style={styles.tableCell}>{item.descripcion}</Text>
-                  <Text style={styles.tableCell}>{item.notas || 'N/A'}</Text>
-                </View>
-              ))}
+              {tratamientos.map((item, index) => {
+                // Calculamos los días entre la fecha de inicio y fin
+                const fechaInicio = dayjs(item.fecha_inicio);
+                const fechaFin = dayjs(item.fecha_fin);
+                const dias = fechaFin.diff(fechaInicio, 'day'); // Calcula la diferencia en días
+                
+                return (
+                  <View key={index} style={styles.tableRow}>
+                    <Text style={styles.tableCell}>{fechaInicio.format('YYYY-MM-DD')}</Text>
+                    <Text style={styles.tableCell}>{dias}</Text>
+                    <Text style={styles.tableCell}>{item.descripcion}</Text>
+                    <Text style={styles.tableCell}>{item.notas || 'N/A'}</Text>
+                  </View>
+                );
+              })}
             </ScrollView>
           </View>
         )}

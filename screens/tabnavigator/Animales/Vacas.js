@@ -2,19 +2,23 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, Button, Modal, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
 import axios from 'axios';
 import { useFocusEffect } from '@react-navigation/native'; // Importar useFocusEffect
-
+import { useRoute } from '@react-navigation/native';
 const Vacas = ({ navigation, route }) => {
+  const route1 = useRoute();
+      const { productor_id } = route1.params;
   const [vacas, setVacas] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
   const [loading, setLoading] = useState(true);
+  
 
   // useFocusEffect para obtener los datos cuando la pantalla esté enfocada
   useFocusEffect(
     React.useCallback(() => {
       async function getConteoEtapas() {
         try {
-          const response = await axios.get(`http://192.168.1.71:19000/api/vacas/${1}`);
+          const response = await axios.get(`http://192.168.1.71:8081/api/vacas/${productor_id}`);
+          
           
           // Verificar si response.data existe y tiene vacas
           if (response.data && Array.isArray(response.data) && response.data.length > 0) {
@@ -65,7 +69,7 @@ const Vacas = ({ navigation, route }) => {
       <Button
         title="Ir a agregar nueva vaca"
         color="blue"
-        onPress={() => navigation.navigate('FormularioAddVaca', { onAgregarVaca: agregarVaca })}
+        onPress={() => navigation.navigate('FormularioAddVaca', { onAgregarVaca: agregarVaca,productor_id })}
       />
 
       {/* FlatList con validación para keyExtractor */}

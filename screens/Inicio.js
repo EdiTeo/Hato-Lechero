@@ -29,12 +29,14 @@ const Inicio = () => {
         options={{ headerShown: false }} />
       <Stack.Screen 
         name="Barra" 
-        component={Barra} 
+        component={Barra}
+        initialParams={{ productor_id }}  
         options={{ headerShown: false }} />
       <Stack.Screen 
-        name="Vacas" 
-        component={Vacas} 
-        options={{ headerShown: false }} />
+  name="Vacas" 
+  component={Vacas} 
+  options={{ headerShown: false }} 
+/>
       <Stack.Screen 
         name="FormularioAddVaca" 
         component={FormularioAddVaca}

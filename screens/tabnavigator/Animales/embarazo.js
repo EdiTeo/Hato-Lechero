@@ -8,15 +8,17 @@ import {
   Modal,
   TextInput,
   Alert,
+  ScrollView,
 } from 'react-native';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
-
+import dayjs from 'dayjs';
 const Embarazo = (route) => {
   const navigation = useNavigation();
   const [modalVisible, setModalVisible] = useState(false);
   const [modalType, setModalType] = useState(null);
-  
+const [tratamientos, setHistorial] = useState([]); 
+
   const [inseminacionData, setInseminacionData] = useState({
     fecha: new Date().toISOString().split('T')[0], // Fecha de hoy
     razaPadre: '',
@@ -41,10 +43,12 @@ const[idinseminacion,setInseminacion]=useState(null);
   useEffect(() => {
     const verificarInseminacion = async () => {
         try {
-            const response = await fetch(`http://192.168.1.71:19000/api/vaca/${route.route.params.vaca.vaca_id}/inseminacion-pendiente`);
+            const response = await fetch(`http://192.168.1.71:8081/api/vaca/${route.route.params.vaca.vaca_id}/inseminacion-pendiente`);
+            const response1 = await axios.get(`http://192.168.1.71:8081/api/reproduccion/vaca/${route.route.params.vaca.vaca_id}`);
+            setHistorial(response1.data.data);
             const data = await response.json();
             setInseminacion(data.reproduccion_id);
-
+            console.log(data);
             // Verifica si el mensaje indica que hay una inseminación pendiente
             if (data.mensaje.includes("No hay inseminación pendiente")) {
                 setPuedeInseminar(true); // Puede inseminar porque no hay inseminación pendiente
@@ -71,7 +75,7 @@ const[idinseminacion,setInseminacion]=useState(null);
   };
   const saveInseminacion = async () => {
     try {
-      const response = await axios.post('http://192.168.1.71:19000/api/reproducciones', {
+      const response = await axios.post('http://192.168.1.71:8081/api/reproducciones', {
         vaca_id: route.route.params.vaca.vaca_id, // ID de la vaca
         fecha_inseminacion: inseminacionData.fecha,
         raza_toro: inseminacionData.razaPadre,
@@ -88,7 +92,7 @@ const[idinseminacion,setInseminacion]=useState(null);
   };
   const actualizarParto = async () => {
     try {
-        const response = await axios.put(`http://192.168.1.71:19000/api/reproducciones/${idinseminacion}`, {
+        const response = await axios.put(`http://192.168.1.71:8081/api/reproducciones/${idinseminacion}`, {
             fecha_real_parto: partoData.fecha,
             estado_parto: partoData.estado,
         });
@@ -99,7 +103,7 @@ const[idinseminacion,setInseminacion]=useState(null);
 };
 const actualizarAborto = async () => {
   try {
-      const response = await axios.put(`http://192.168.1.71:19000/api/reproducciones/${idinseminacion}`, {
+      const response = await axios.put(`http://192.168.1.71:8081/api/reproducciones/${idinseminacion}`, {
           fecha_real_parto: abortoData.fecha,
           estado_parto: partoData.estado,
       });
@@ -135,26 +139,50 @@ const actualizarAborto = async () => {
     disabled={!puedeInseminar}
   >
     <Image
-      source={require('../../Imagenes/datosGenerales.png')}
+      source={{uri: 'https://res.cloudinary.com/deqnrwzno/image/upload/v1734441237/datosGenerales_qbtngj.png'}}
       style={styles.icon}
     />
     <Text style={styles.cardText}>Inseminación</Text>
   </TouchableOpacity>
-  </View>
-  <View style={styles.cardContainer}>
   <TouchableOpacity
     style={styles.card}
     onPress={() => openModal('Parto')}
   >
     <Image
-      source={require('../../Imagenes/tratamiento.jpg')}
+      source={{uri:'https://res.cloudinary.com/deqnrwzno/image/upload/v1734441237/tratamiento_c0vbeq.jpg'}}
       style={styles.icon}
     />
     <Text style={styles.cardText}>Actualizar estado</Text>
   </TouchableOpacity>
 
+  </View>
   
-</View>
+<View style={styles.tableContainer}>
+      {/* Cabecera de la tabla */}
+      <View style={[styles.row, styles.headerRow]}>
+        <Text style={[styles.cell, styles.headerCell]}>Fecha Inseminación</Text>
+        <Text style={[styles.cell, styles.headerCell]}>Fecha Revisión</Text>
+        <Text style={[styles.cell, styles.headerCell]}>Estado</Text>
+        <Text style={[styles.cell, styles.headerCell]}>Notas</Text>
+      </View>
+
+      {/* Cuerpo de la tabla */}
+      <ScrollView>
+        {tratamientos.map((item, index) => {
+          const fechaInicio = new Date(item.fecha_inseminacion).toISOString().split('T')[0];
+          const fechaFin = new Date(item.fecha_revision).toISOString().split('T')[0];
+
+          return (
+            <View key={index} style={[styles.row, index % 2 === 0 && styles.evenRow]}>
+              <Text style={styles.cell}>{fechaInicio}</Text>
+              <Text style={styles.cell}>{fechaFin}</Text>
+              <Text style={styles.cell}>{item.estado_parto}</Text>
+              <Text style={styles.cell}>{item.notas || 'N/A'}</Text>
+            </View>
+          );
+        })}
+      </ScrollView>
+    </View>
 
       {/* Modal */}
       <Modal
@@ -240,6 +268,40 @@ const actualizarAborto = async () => {
 };
 
 const styles = StyleSheet.create({
+  tableContainer: {
+    flex: 1,
+    padding: 10,
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 10,
+    margin: 10,
+  },
+  row: {
+    flexDirection: 'row',
+    paddingVertical: 10,
+    paddingHorizontal: 5,
+  },
+  headerRow: {
+    backgroundColor: '#f0f0f0',
+    borderBottomWidth: 2,
+    borderBottomColor: '#ddd',
+  },
+  evenRow: {
+    backgroundColor: '#f9f9f9',
+  },
+  cell: {
+    flex: 1,
+    textAlign: 'center',
+    fontSize: 14,
+    paddingHorizontal: 5,
+    borderWidth: 1,
+    borderColor: '#ddd',
+  },
+  headerCell: {
+    fontWeight: 'bold',
+    fontSize: 15,
+  },
   container: {
     flex: 1,
     backgroundColor: '#fff',

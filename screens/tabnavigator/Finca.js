@@ -5,8 +5,12 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import { useFocusEffect } from '@react-navigation/native';
+import { useRoute } from '@react-navigation/native';
+
 
 const Finca = () => {
+  const route = useRoute();
+    const { productor_id } = route.params;
   const navigation = useNavigation(); // Hook para navegación
   const [modalVisible, setModalVisible] = useState(false); // Controla el modal de reportes
   const [modalVisible1, setModalVisible1] = useState(false);
@@ -41,22 +45,22 @@ const Finca = () => {
   });
   // Datos ficticios para los reportes
   const [produccionLeche, setProduccionLeche] = useState({
-    fecha: '2024-10-30',
-    totalLitros: 250,
-    numeroVacas: 20,
+    fecha: '',
+    totalLitros: 0,
+    numeroVacas: 0,
   });
   const [total, setTotal] = useState(0);
   const getConteoEtapas = async () => {
     try {
       setLoading(true); // Activa el estado de carga
-      const response = await axios.get(`http://192.168.1.71:19000/api/contar/${1}`);
-      const response4 = await axios.get(`http://192.168.1.71:19000/api/vacas/${1}`);
-      const response2 = await axios.get(`http://192.168.1.71:19000/api/vacas/tratamiento/${1}`);
-      const response3 = await axios.get(`http://192.168.1.71:19000/api/vacas/prenadas/${1}`);
+      const response = await axios.get(`http://192.168.1.71:8081/api/contar/${productor_id}`);
+      const response4 = await axios.get(`http://192.168.1.71:8081/api/vacas/${productor_id}`);
+      const response2 = await axios.get(`http://192.168.1.71:8081/api/vacas/tratamiento/${productor_id}`);
+      const response3 = await axios.get(`http://192.168.1.71:8081/api/vacas/prenadas/${productor_id}`);
       
       setSelectedCategory(response4.data);
       console.log(response4.data);
-      setTratamiento(response2.data.nombres_vacas_en_tratamiento);
+      
       const conteo = {
         ternero: 0,
         juvenil: 0,
@@ -74,7 +78,7 @@ const Finca = () => {
       });
       conteoEstados.enfermos = response2.data.vacas_en_tratamiento;
       conteoEstados.preñadas = response3.data.vacas_preñadas;
-
+      console.log(conteo);
       setConteoEtapas(conteo);
 
       response.data.estados_reproductivos.forEach(item => {
@@ -85,10 +89,14 @@ const Finca = () => {
       
       setConteoEstado(conteoEstados);
       console.log(conteoEstado);
+      
       setTratamiento(response2.data.nombres_vacas_en_tratamiento);
       setPreñada(response3.data.nombres_vacas_preñadas);
-      setnoGestante(response.data.estados_reproductivos[1].nombres_vacas      );
+      
+      setnoGestante(response.data.estados_reproductivos[1]?.nombres_vacas || ['']);
+      console.log(response.data.estados_reproductivos[0].nombres_vacas);
       setGestante(response.data.estados_reproductivos[0].nombres_vacas      );
+      
       setTotal(Object.values(conteo).reduce((acumulador, valor) => acumulador + valor, 0));
     } catch (error) {
       console.log(error);
@@ -157,7 +165,12 @@ const Finca = () => {
   const obtenerProduccionLeche = async (mes) => {
     
     try {
-      const response = await axios.get(`http://192.168.1.71:19000/api/produccion-leche/mes?mes=${mes}`);
+      const response = await axios.get(`http://192.168.1.71:8081/api/produccion-leche/mes`, {
+        params: {
+          mes: mes,
+          productor_id: productor_id, // Agregar productor_id como parámetro
+        },
+      });
       setProduccionLeche({
         fecha: `${response.data.año}-${response.data.mes}-01`,  // Formato de fecha: Año-Mes-01 (puedes ajustarlo)
         totalLitros: response.data.total_leche,
@@ -179,7 +192,7 @@ const Finca = () => {
 
     try {
         // Enviar la fecha formateada a la API
-        const response = await axios.get(`http://192.168.1.71:19000/api/produccion-leche/fecha?fecha=${fechaFormateada}`);
+        const response = await axios.get(`http://192.168.1.71:8081/api/produccion-leche/fecha?fecha=${fechaFormateada}`);
         
         // Setear los datos recibidos en el estado
         setProduccionLeche({
@@ -204,7 +217,7 @@ const Finca = () => {
     <View style={styles.container}>
       <View style={styles.header}>
         <Image 
-          source={require('../Imagenes/Vaca Leche 3.jpg')}
+          source={{uri: 'https://res.cloudinary.com/deqnrwzno/image/upload/v1734441238/Vaca_Leche_3_to2loy.jpg'}}
           style={styles.logo}
         />
       </View>
@@ -215,22 +228,22 @@ const Finca = () => {
       {/* Primera fila: Vacas, Novillas, Terneros, Destetados */}
       <View style={styles.section}>
         <TouchableOpacity style={[styles.card, { backgroundColor: '#E74C3C' }]} onPress={() => openModal('adulto')}>
-          <Image source={require('../Imagenes/vaca22.png')} style={styles.icon} />
+          <Image source={{uri: 'https://res.cloudinary.com/deqnrwzno/image/upload/v1734441238/vaca22_wfhu6s.png'}} style={styles.icon} />
           <Text style={styles.cardTitle}>Vacas</Text>
           <Text style={styles.cardNumber}>{conteoEtapas.adulto}</Text>
         </TouchableOpacity>
         <TouchableOpacity style={[styles.card, { backgroundColor: '#27AE60' }]} onPress={() => openModal('juvenil')}>
-          <Image source={require('../Imagenes/vaca (1).png')} style={styles.icon} />
+          <Image source={{uri: 'https://res.cloudinary.com/deqnrwzno/image/upload/v1734441237/vaca_1_kjebya.png'}}     style={styles.icon} />
           <Text style={styles.cardTitle}>Novillas</Text>
           <Text style={styles.cardNumber}>{conteoEtapas.juvenil}</Text>
         </TouchableOpacity>
         <TouchableOpacity style={[styles.card, { backgroundColor: '#8E44AD' }]} onPress={() => openModal('ternero')}>
-          <Image source={require('../Imagenes/vaca (2).png')} style={styles.icon} />
+          <Image source={{uri: 'https://res.cloudinary.com/deqnrwzno/image/upload/v1734441237/vaca_2_xc1avi.png'}} style={styles.icon} />
           <Text style={styles.cardTitle}>Terneros</Text>
           <Text style={styles.cardNumber}>{conteoEtapas.ternero}</Text>
         </TouchableOpacity>
         <TouchableOpacity style={[styles.card, { backgroundColor: '#16A085' }]} onPress={() => openModal('cria')}>
-          <Image source={require('../Imagenes/vaca (3).png')} style={styles.icon} />
+          <Image source={{uri: 'https://res.cloudinary.com/deqnrwzno/image/upload/v1734441237/vaca_3_ywzzcf.png'}} style={styles.icon} />
           <Text style={styles.cardTitle}>Destetados</Text>
           <Text style={styles.cardNumber}>{conteoEtapas.cria}</Text>
         </TouchableOpacity>
@@ -270,22 +283,22 @@ const Finca = () => {
       {/* Segunda fila: Enfermos, Embarazadas, Ordeño, Seco */}
       <View style={styles.section}>
   <TouchableOpacity style={[styles.card, { backgroundColor: '#E74C3C' }]} onPress={() => openModal1('enfermos')}>
-    <Image source={require('../Imagenes/botiquin-de-primeros-auxilios.png')} style={styles.icon} />
+    <Image source={{uri: 'https://res.cloudinary.com/deqnrwzno/image/upload/v1734441236/botiquin-de-primeros-auxilios_cbhegb.png'}}        style={styles.icon} />
     <Text style={styles.cardTitle}>Enfermos</Text>
     <Text style={styles.cardNumber}>{conteoEstado.enfermos}</Text>
   </TouchableOpacity>
   <TouchableOpacity style={[styles.card, { backgroundColor: '#27AE60' }]} onPress={() => openModal1('prenadas')}>
-    <Image source={require('../Imagenes/embarazada.png')} style={styles.icon} />
+    <Image source={{uri: 'https://res.cloudinary.com/deqnrwzno/image/upload/v1734441236/embarazada_tbqpue.png'}} style={styles.icon} />
     <Text style={styles.cardTitle}>Preñada</Text>
     <Text style={styles.cardNumber}>{conteoEstado.preñadas}</Text>
   </TouchableOpacity>
   <TouchableOpacity style={[styles.card, { backgroundColor: '#F1C40F' }]} onPress={() => openModal1('gestante')}>
-    <Image source={require('../Imagenes/ordeno.png')} style={styles.icon} />
+    <Image source={{uri: 'https://res.cloudinary.com/deqnrwzno/image/upload/v1734441236/ordeno_kl0eyi.png'}} style={styles.icon} />
     <Text style={styles.cardTitle}>Ordeño</Text>
     <Text style={styles.cardNumber}>{conteoEstado.gestante}</Text>
   </TouchableOpacity>
   <TouchableOpacity style={[styles.card, { backgroundColor: '#16A085' }]} onPress={() => openModal1('seco')}>
-    <Image source={require('../Imagenes/ordeno (1).png')} style={styles.icon} />
+    <Image source={{uri: 'https://res.cloudinary.com/deqnrwzno/image/upload/v1734441236/ordeno_1_s0aerf.png'}} style={styles.icon} />
     <Text style={styles.cardTitle}>Seco</Text>
     <Text style={styles.cardNumber}>{conteoEstado.no_gestante}</Text>
   </TouchableOpacity>
@@ -322,7 +335,7 @@ const Finca = () => {
       {/* Botón para abrir el modal de Reportes */}
       <TouchableOpacity style={styles.button} onPress={() => setModalVisible(true)}>
         <Text style={styles.buttonText}>Reportes</Text>
-        <Image source={require('../Imagenes/reporte.png')} style={styles.icon} />
+        <Image source={{uri: 'https://res.cloudinary.com/deqnrwzno/image/upload/v1734441237/reporte_fvo6nx.png'}} style={styles.icon} />
       </TouchableOpacity>
 
       {/* Modal para reportes */}

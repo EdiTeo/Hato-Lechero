@@ -10,10 +10,11 @@ import Registro from './Registro';
 const Drawer=createDrawerNavigator()
 //drawer para navegar 
 //este tiene que ser true
-const Animales = () => {
+const Animales = ({ productor_id }) => {
+  
   return (
      <Drawer.Navigator drawerContent={props => <Registro {...props} />}>
-      <Drawer.Screen name="Produccion" component={Produccion} options={{ headerShown: true }} />
+      <Drawer.Screen name="Produccion" component={Produccion} options={{ headerShown: true }} initialParams={{ productor_id }}/>
       <Drawer.Screen name="LaFinca" component={LaFinca} options={{ headerShown: true }} />
       <Drawer.Screen name="Evento" component={Evento} options={{ headerShown: true }} />
     </Drawer.Navigator>

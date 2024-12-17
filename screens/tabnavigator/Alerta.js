@@ -4,6 +4,7 @@ import { Calendar, LocaleConfig } from 'react-native-calendars';
 import moment from 'moment';
 import 'moment/locale/es';
 import axios from 'axios';
+import { useRoute } from '@react-navigation/native';
 
 // Configurar el calendario en español
 LocaleConfig.locales['es'] = {
@@ -18,6 +19,8 @@ LocaleConfig.locales['es'] = {
 LocaleConfig.defaultLocale = 'es';
 
 const Alerta = () => {
+      const route1 = useRoute();
+          const { productor_id } = route1.params;
   const [selectedDate, setSelectedDate] = useState('');
   const [eventDescription, setEventDescription] = useState('');
   const [eventType, setEventType] = useState('');
@@ -26,11 +29,10 @@ const Alerta = () => {
   const [selectedEventIndex, setSelectedEventIndex] = useState(null); // Estado para el evento seleccionado
   const [isEditing, setIsEditing] = useState(false); // Estado para controlar la edición
 
-  const productorId = 1; // Este valor debe provenir del contexto o ser dinámico
 
   useEffect(() => {
     // Consultar las alertas desde la API
-    axios.get(`http://192.168.1.71:19000/api/alertas/productor/${productorId}`)
+    axios.get(`http://192.168.1.71:8081/api/alertas/productor/${productor_id}`)
       .then(response => {
         setEvents (response.data); // Almacenar las alertas
       })
@@ -62,7 +64,7 @@ const Alerta = () => {
       return;
     }
 
-    const newEvent = { productor_id:productorId, fecha_alerta: selectedDate, tipo_alerta: eventType, nota: eventDescription };
+    const newEvent = { productor_id:productor_id, fecha_alerta: selectedDate, tipo_alerta: eventType, nota: eventDescription };
 
     if (isEditing) {
       // Editar evento existente
@@ -72,7 +74,7 @@ const Alerta = () => {
       setIsEditing(false); // Resetear modo de edición
     } else {
       // Agregar nuevo evento
-      axios.post('http://192.168.1.71:19000/api/alertas', newEvent)
+      axios.post('http://192.168.1.71:8081/api/alertas', newEvent)
       .then(response => {
         // Agregar evento localmente
         setEvents([...events, newEvent]);

@@ -13,7 +13,7 @@ const chequeoVeterinario = ({ route}) => {
           onPress={() => navigation.navigate('tratamiento',route.params)}
         >
           
-          <Image source={require('../../Imagenes/tratamiento.jpg')} style={styles.icon} />
+          <Image source={{uri: 'https://res.cloudinary.com/deqnrwzno/image/upload/v1734441237/tratamiento_c0vbeq.jpg'}} style={styles.icon} />
           <Text style={styles.cardText}>Tratamiento</Text>
         </TouchableOpacity>
 
@@ -26,7 +26,7 @@ const chequeoVeterinario = ({ route}) => {
           onPress={() => navigation.navigate('vacuna',route.params)}
           
         >
-          <Image source={require('../../Imagenes/vacuna.jpg')} style={styles.icon} />
+          <Image source={{uri: 'https://res.cloudinary.com/deqnrwzno/image/upload/v1734441243/vacuna_eueogq.jpg'}} style={styles.icon} />
           <Text style={styles.cardText}>Vacuna</Text>
         </TouchableOpacity>
 

@@ -3,8 +3,10 @@ import { View, Text, StyleSheet, Button, TouchableOpacity, Image, TextInput } fr
 import axios from 'axios';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useFocusEffect } from '@react-navigation/native';
-
+import { useRoute } from '@react-navigation/native';
 const Produccion = () => {
+    const route1 = useRoute();
+        const { productor_id } = route1.params;
   const [mostrarOpciones, setMostrarOpciones] = useState(false);
   const [mostrarDetalleProduccion, setMostrarDetalleProduccion] = useState(false);
   const [mostrarRegistroMasivo, setMostrarRegistroMasivo] = useState(false);
@@ -47,8 +49,8 @@ const Produccion = () => {
       ]);
       console.log(registro);
       try {
-        const response = await axios.post('http://192.168.1.71:19000/api/produccion-leche', {
-          productor_id: 1, // Siempre un número entero
+        const response = await axios.post('http://192.168.1.71:8081/api/produccion-leche', {
+          productor_id: productor_id, // Siempre un número entero
           cantidad_animales: parseInt(animalesOrdeñados, 10), // Convierte a entero
           cantidad_litros: parseFloat(lecheExtraida), // Convierte a flotante
           tipo_ordeño: turnoSeleccionado, // Si es un string válido, déjalo tal cual
@@ -75,13 +77,14 @@ const Produccion = () => {
   );
 
   const obtenerProduccionHoy = async () => {
-    const response = await axios.get('http://192.168.1.71:19000/api/produccion-leche/hoy');
+    console.log(productor_id);
+    const response = await axios.get(`http://192.168.1.71:8081/api/produccion-leche/hoy/${productor_id}`);
     setProduccionHoy(response.data);
     console.log('Producción de hoy:', produccionHoy);
   };
   
   const obtenerProduccionMensual = async () => {
-    const response = await axios.get('http://192.168.1.71:19000/api/produccion-leche/mes-actual');
+    const response = await axios.get(`http://192.168.1.71:8081/api/produccion-leche/mes/${productor_id}`);
     setProduccionMes(response.data);
     console.log('Producción de hoy:', produccionMes);
 
@@ -207,7 +210,7 @@ const Produccion = () => {
           <View style={styles.opcionesContainer}>
             
             <TouchableOpacity style={styles.opcion} onPress={handleRegistroMasivo}>
-              <Image source={require('../Imagenes/botellas-de-leche.png')} style={styles.imagen} />
+              <Image source={{uri: 'https://res.cloudinary.com/deqnrwzno/image/upload/v1734441236/botellas-de-leche_mgn61g.png'}} style={styles.imagen} />
               <Text style={styles.opcionText}>Registro masivo</Text>
             </TouchableOpacity>
           </View>

@@ -38,7 +38,7 @@ const FormularioTratamiento = ({ navigation, route }) => {
 
       try {
         console.log("Enviando:", nuevaVaca);
-        const response = await axios.post(`http://192.168.1.71:19000/api/historial-medico`, nuevaVaca);  // Reemplaza localhost por la IP de tu máquina
+        const response = await axios.post(`http://192.168.1.71:8081/api/historial-medico`, nuevaVaca);  // Reemplaza localhost por la IP de tu máquina
         console.log("Respuesta:", response);
 
         if (response.status === 200 || response.status === 201) {
@@ -60,7 +60,8 @@ const FormularioTratamiento = ({ navigation, route }) => {
 
 
   const validacionEntradas = () => {
-    const onlyLettersRegex = /^[a-zA-Z\s]+$/;
+    const onlyLettersRegex = /^[a-zA-ZÀ-ÿ\s]+$/;
+
     if (!descripcion || !notas || !medicamento || !diasTratamiento) {
       setAlertMessage('Por favor, complete todos los campos.');
       setModalVisible(true);

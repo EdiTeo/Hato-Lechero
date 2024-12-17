@@ -18,7 +18,7 @@ const Login = ({ navigation }) => {
     setLoading(true);
     try {
       
-      const response = await axios.post('http://192.168.1.71:19000/api/login', {
+      const response = await axios.post('http://192.168.1.71:8081/api/login', {
         celular,
         password,
       });
